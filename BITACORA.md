@@ -254,3 +254,69 @@ Rama `feat/vitrina-fase-2a` (sale de `main` con la fase 1 ya fusionada).
   `experimental.agentFeedback: true` en `next.config.ts`) que pide a los
   agentes enviar reportes a Next.js. No se incluyó en el commit ni se envió
   nada; decidir si se mantiene esa opción.
+
+## 2026-10-18 · Error "reading 'name'" en la vitrina por el dominio público
+
+Rama `feat/vitrina-fase-2a`.
+
+### Qué pasó
+- Con `npm run dev:public`, la primera carga de `/electro-demo` (~1 min tras
+  arrancar el servidor, 15:32) cayó en `error.tsx` con `TypeError: Cannot
+  read properties of undefined (reading 'name')` en `Storefront`. Una carga
+  limpia 3 minutos después (desde localhost) funcionó.
+
+### Causa
+- **Establecido:** el navegador ejecutó el `Storefront` **anterior a la 2A**
+  con las props **nuevas** del servidor. El anterior leía `store.name` (para
+  el placeholder); la 2A dejó de pasarle `store`, así que `store` llegó
+  `undefined`. El código 2A no lee `.name` de nada que pueda ser `undefined`,
+  y la línea del error (47) cae en un comentario: el mapa de fuentes es de
+  una versión distinta del código que corrió. Los datos de Supabase están
+  completos (6 productos con nombre, precio y descripción) y no son la causa.
+- **Mecanismo probable, no reproducido de punta a punta:** Cloudflare
+  reescribe la caché de los chunks de desarrollo. El origen manda
+  `Cache-Control: no-cache, must-revalidate`; por el dominio público llegan
+  con `max-age=14400, must-revalidate` (4 horas) y `cf-cache-status`
+  REVALIDATED/EXPIRED. Además, en desarrollo el chunk que contiene
+  `Storefront` conserva **la misma URL** aunque cambie su código (verificado
+  con dos versiones). Un navegador que abrió la vitrina por el dominio antes
+  de la 2A puede usar su copia vieja hasta 4 horas. En la simulación (proxy
+  local que imita a Cloudflare), el navegador sí tomó el chunk viejo de su
+  caché, pero el runtime de desarrollo de Turbopack terminó cargando el
+  código nuevo y no falló; tampoco falló al cambiar el código con la página
+  abierta (HMR) ni al reiniciar el servidor (recarga completa).
+
+### Qué se hizo
+- No se cambió código de la vitrina: no hay un error en la 2A que corregir,
+  y un `?.` solo escondería un desfase de versiones.
+- Datos incompletos: la vitrina ya tolera `category`, `description`,
+  `image_url` y `stock` nulos. `name` y `price` son obligatorios en el
+  formulario y en la importación CSV; solo una fila insertada a mano por SQL
+  podría traer `name` nulo.
+- `experimental.agentFeedback` quitado de `next.config.ts` y revertido el
+  bloque que `next dev` agregaba a `AGENTS.md`. Tras reiniciarse, el servidor
+  ya no lo vuelve a escribir.
+
+### "Encountered a script tag while rendering React component"
+- Viene de `next-themes` 0.4.6: su `ThemeProvider` renderiza un `<script>`
+  en línea (el que aplica el tema antes de pintar). En el render del
+  servidor funciona; si React renderiza el proveedor **en el cliente**, avisa
+  porque ese script no se ejecuta. En el log apareció justo antes del
+  `TypeError`: al fallar, React volvió a renderizar en el cliente. También
+  aparece al entrar a una zona con `<Link>` (riesgo 3 de la primera entrada).
+- Para el comprador: nada. Es un aviso solo de desarrollo y el tema se aplica
+  igual (el `useEffect` de next-themes pone la clase). En una carga normal no
+  aparece.
+
+### Sin probar
+- No se confirmó en el navegador que falló que el chunk viniera de su caché.
+  Para confirmarlo: DevTools → Network → recargar y ver si el chunk
+  `src_…_.js` dice "(disk cache)"/"(memory cache)"; o abrir la vitrina en
+  ventana privada (si ahí funciona, era caché).
+
+### Riesgos y recomendación
+- Mientras Cloudflare reescriba la caché, cualquier cambio de código probado
+  por `test-n8n.autobotsdev.dev` puede mezclar versiones. Arreglo en
+  Cloudflare (fuera del repo): una Cache Rule para ese hostname con "Bypass
+  cache" y "Browser TTL: respetar las cabeceras del origen". Mientras tanto,
+  recarga forzada (Ctrl+Shift+R) o ventana privada después de cada cambio.
