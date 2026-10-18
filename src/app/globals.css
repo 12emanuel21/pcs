@@ -12,15 +12,74 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* next-themes pone la clase .dark en <html> (tema global). */
+:root.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Scroll horizontal sin barra visible (píldoras de categorías en móvil). */
+@utility hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Modo oscuro por clase:
+   - .dark en <html> lo pone next-themes (tema global: panel y resto).
+   - La vitrina puede forzar su propio tema con .light o .dark en su
+     contenedor (tema por defecto de la tienda o elección del comprador).
+   dark: aplica dentro de .dark salvo que haya un .light más abajo. En <html>
+   el modo claro usa la clase "theme-light" (no "light") para que solo los
+   alcances locales anulen el oscuro. */
+@custom-variant dark (&:where(.dark, .dark *):not(:where(.light, .light *)));
+
+/* Color de marca de la tienda (vitrina pública). StoreThemeScope define
+   --brand, --brand-fg, --brand-dark y --brand-dark-fg con brandStyle(); aquí
+   se elige la variante según el tema. Uso: bg-brand, text-brand-fg... */
+.brand-scope {
+  --brand-current: var(--brand);
+  --brand-current-fg: var(--brand-fg);
+}
+
+.dark .brand-scope,
+.brand-scope.dark {
+  --brand-current: var(--brand-dark);
+  --brand-current-fg: var(--brand-dark-fg);
+}
+
+/* Tienda forzada a claro dentro de un <html> oscuro (va al final: gana). */
+.brand-scope.light {
+  --brand-current: var(--brand);
+  --brand-current-fg: var(--brand-fg);
+}
+
+@theme inline {
+  --color-brand: var(--brand-current, #18181b);
+  --color-brand-fg: var(--brand-current-fg, #ffffff);
+}
+
+/* "Pop" del contador del carrito al agregar un producto. */
+@keyframes cart-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+@utility animate-cart-pop {
+  animation: cart-pop 300ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-cart-pop {
+    animation: none;
+  }
 }
