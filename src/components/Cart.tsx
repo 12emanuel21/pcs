@@ -88,30 +88,27 @@ export default function Cart({ store }: CartProps) {
 
   return (
     <>
-      {/* Botón flotante: con productos muestra el total, como en las apps de
-          delivery; el contador hace "pop" cada vez que cambia. */}
+      {/* Botón flotante: círculo compacto que no tapa las tarjetas; el total
+          se ve dentro del carrito. Solo aparece con productos (siempre
+          montado para animar la entrada; inert mientras está oculto) y el
+          contador hace "pop" cada vez que cambia. El margen inferior suma el
+          área segura del iPhone (barra de inicio). */}
       <button
         type="button"
         onClick={() => setIsOpen(true)}
+        inert={count === 0}
         aria-label={`Abrir carrito (${count} ${count === 1 ? "producto" : "productos"})`}
-        className={`fixed right-4 bottom-[max(1.25rem,env(safe-area-inset-bottom))] z-40 flex min-h-14 items-center gap-3 rounded-full bg-brand text-brand-fg shadow-xl shadow-black/20 transition-all duration-200 hover:brightness-110 active:scale-95 sm:right-6 ${
-          count > 0 ? "pl-4 pr-5" : "w-14 justify-center"
+        className={`fixed right-[calc(1rem+env(safe-area-inset-right))] bottom-[calc(1rem+env(safe-area-inset-bottom))] z-40 flex h-14 w-14 items-center justify-center rounded-full bg-brand text-brand-fg shadow-lg shadow-black/25 transition-all duration-200 hover:brightness-110 active:scale-95 motion-reduce:transition-none sm:right-[calc(1.5rem+env(safe-area-inset-right))] sm:bottom-[calc(1.5rem+env(safe-area-inset-bottom))] ${
+          count > 0 ? "scale-100 opacity-100" : "pointer-events-none scale-75 opacity-0"
         }`}
       >
-        <span className="relative">
-          <ShoppingBag size={22} />
-          {count > 0 && (
-            <span
-              key={count}
-              className="animate-cart-pop absolute -right-2.5 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-white px-1 text-[11px] font-bold text-zinc-900 shadow ring-2 ring-brand"
-            >
-              {count}
-            </span>
-          )}
-        </span>
+        <ShoppingBag size={24} />
         {count > 0 && (
-          <span className="text-sm font-semibold tabular-nums">
-            Ver pedido · {formatCOP(total)}
+          <span
+            key={count}
+            className="animate-cart-pop absolute -right-1 -top-1 flex h-6 min-w-6 items-center justify-center rounded-full bg-white px-1.5 text-xs font-bold tabular-nums text-zinc-900 shadow ring-2 ring-brand"
+          >
+            {count}
           </span>
         )}
       </button>
@@ -131,8 +128,10 @@ export default function Cart({ store }: CartProps) {
         aria-modal="true"
         aria-label="Tu pedido"
         inert={!isOpen}
-        className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-white shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] sm:rounded-l-3xl dark:bg-slate-900 ${
-          isOpen ? "translate-x-0" : "translate-x-full"
+        className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-white transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] sm:rounded-l-3xl dark:bg-slate-900 ${
+          // Sombra solo abierto: cerrado, fuera de pantalla, se asomaba como
+          // una franja gris en el borde derecho.
+          isOpen ? "translate-x-0 shadow-2xl" : "translate-x-full"
         }`}
       >
         <header className="flex items-center justify-between border-b border-zinc-100 px-5 py-3 dark:border-slate-800">

@@ -157,7 +157,7 @@ async function StoreCatalog({ params }: Pick<PageProps<"/[storeId]">, "params">)
       </header>
 
       {/* Buscador, categorías y grid filtrable (Client Component). */}
-      <Storefront store={store} initialProducts={products} />
+      <Storefront initialProducts={products} />
 
       <Cart store={store} />
     </StoreThemeScope>

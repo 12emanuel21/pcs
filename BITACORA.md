@@ -193,3 +193,64 @@ Rama `feat/vitrina-fase-1`.
   configuración de Supabase que el `.env` local. No dejarlo encendido sin
   supervisión.
 - No pueden correr n8n y `dev:public` a la vez (mismo puerto 5678).
+
+## 2026-10-18 · Vitrina, fase 2A: tarjeta de producto y botón del carrito
+
+Rama `feat/vitrina-fase-2a` (sale de `main` con la fase 1 ya fusionada).
+
+### Qué se hizo
+- **Botón del carrito** (`Cart.tsx`): círculo de 56px color de marca con el
+  ícono de la bolsa y un badge con la cantidad (conserva el "pop" al
+  agregar). Sin texto ni total. No aparece con el carrito vacío (queda
+  montado, invisible e `inert`, y entra con una escala corta). Margen
+  inferior y derecho sumando `env(safe-area-inset-*)`.
+- **Selector en la tarjeta** (`ProductCard.tsx`): con el producto en el
+  carrito, "Agregar" se vuelve "− cantidad +" en el mismo lugar y alto (44px),
+  en un tono suave de la marca para distinguirlo del botón sólido. "+" usa
+  `addItem` (refresca stock y precio) y se desactiva al llegar al stock; "−"
+  en 1 quita el producto. Se quitó el círculo con la cantidad sobre la foto.
+- **Poco stock:** "Últimas N unidades" / "Última unidad" en texto pequeño
+  ámbar sobre el precio, con 5 o menos (`LOW_STOCK_THRESHOLD`). Si el
+  comprador ya tiene todas las unidades: "No hay más unidades". Va arriba del
+  precio para que precio y botón sigan alineados entre tarjetas de la misma
+  fila.
+- **Buscador:** placeholder "Buscar productos". `Storefront` ya no recibe
+  `store` (solo lo usaba el placeholder).
+- **Centrado en escritorio:** medido en Chromium a 1500px, el contenedor sí
+  estaba centrado (174px a cada lado). La sensación de "cargado a la
+  izquierda" venía de dos cosas: la última fila incompleta de la grilla (con
+  6 productos y 4 columnas, 2 tarjetas pegadas a la izquierda) y la sombra del
+  panel del carrito cerrado, que se asomaba como una franja gris en el borde
+  derecho. Arreglos: la grilla pasa a flex con `flex-wrap` y centra la última
+  fila desde 3 columnas (en celular, 2 columnas alineadas a la izquierda como
+  antes); la sombra del panel solo se aplica abierto.
+- Padding inferior de la grilla: `6rem + área segura` para que el botón no
+  tape la última fila en iPhone.
+
+### Verificado
+- `tsc`, `eslint` y `next build` sin errores.
+- Capturas con Chromium headless (librerías bajadas sin `sudo` al
+  scratchpad de la sesión) a 375px claro y oscuro y a 1500px, con stock
+  forzado temporalmente en el servidor de desarrollo (parche quitado antes
+  del commit): botón oculto con carrito vacío y visible con badge; selector
+  "− 1 +" con "+" desactivado y "No hay más unidades" en un producto de
+  stock 1; avisos "Últimas 2 unidades" / "Última unidad"; "Agotado" sin
+  cambios; última fila centrada y sin franja gris a 1500px.
+
+### Sin probar
+- Celular real: área segura del iPhone, toque en "−"/"+" y animación de
+  entrada del botón.
+- Tiendas con datos reales de stock bajo (la demo tiene todo ilimitado).
+- Fuentes de tienda más anchas en el selector a 375px.
+
+### Riesgos
+- El "+" de la tarjeta compara con el stock que llegó con la página; el del
+  carrito, con el guardado al agregar. Si el stock cambia sin recargar,
+  pueden diferir por un momento (igual que antes).
+- La grilla ya no es CSS grid: los anchos de tarjeta se calculan con
+  `calc()` y dependen de que los `gap` (`gap-3` / `sm:gap-5`) coincidan con
+  los valores restados. Si se cambia un gap, hay que actualizar los anchos.
+- `next dev` agregó a `AGENTS.md` un bloque `nextjs-agent-feedback` (por
+  `experimental.agentFeedback: true` en `next.config.ts`) que pide a los
+  agentes enviar reportes a Next.js. No se incluyó en el commit ni se envió
+  nada; decidir si se mantiene esa opción.

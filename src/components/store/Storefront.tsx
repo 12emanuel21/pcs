@@ -4,12 +4,11 @@ import { useMemo, useState } from "react";
 import { PackageSearch, Search, X } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import { categoryKey, uniqueCategories } from "@/lib/categories";
-import type { Product, Store } from "@/types";
+import type { Product } from "@/types";
 
 const ALL = "Todos";
 
 interface StorefrontProps {
-  store: Store;
   initialProducts: Product[];
 }
 
@@ -21,7 +20,7 @@ function normalize(text: string): string {
     .toLowerCase();
 }
 
-export default function Storefront({ store, initialProducts }: StorefrontProps) {
+export default function Storefront({ initialProducts }: StorefrontProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState(ALL);
 
@@ -79,7 +78,7 @@ export default function Storefront({ store, initialProducts }: StorefrontProps) 
               enterKeyHint="search"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder={`Buscar en ${store.name}...`}
+              placeholder="Buscar productos"
               // text-base (16px): evita el zoom automático de iOS al enfocar.
               className="h-11 w-full rounded-2xl border border-zinc-200 bg-white pl-11 pr-11 text-base text-zinc-900 shadow-sm outline-none transition-all duration-200 placeholder:text-zinc-400 focus:border-brand/60 focus:ring-4 focus:ring-brand/15 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 [&::-webkit-search-cancel-button]:hidden"
             />
@@ -125,9 +124,9 @@ export default function Storefront({ store, initialProducts }: StorefrontProps) 
         </div>
       </div>
 
-      {/* pb-28: espacio para que el botón flotante del carrito no tape la
-          última fila de productos. */}
-      <main className="mx-auto max-w-6xl px-4 pt-4 pb-28 sm:px-6 sm:pt-6">
+      {/* Espacio inferior para que el botón flotante del carrito (56px +
+          margen + área segura del iPhone) no tape la última fila. */}
+      <main className="mx-auto max-w-6xl px-4 pt-4 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:px-6 sm:pt-6">
         {filteredProducts.length === 0 ? (
           <EmptyState
             title="No se encontraron productos"
@@ -161,10 +160,20 @@ export default function Storefront({ store, initialProducts }: StorefrontProps) 
                 {filteredProducts.length === 1 ? "producto" : "productos"}
               </p>
             )}
-            {/* 2 columnas en móvil, como las apps de catálogo. */}
-            <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
+            {/* 2 columnas en móvil, como las apps de catálogo; 3 y 4 en
+                pantallas anchas. Flex en vez de grid para centrar una última
+                fila incompleta desde 3 columnas: en grid quedaba pegada a la
+                izquierda y la vitrina se veía cargada a ese lado. El ancho de
+                cada tarjeta descuenta los espacios entre columnas (gap-3 y
+                gap-5). */}
+            <div className="flex flex-wrap gap-3 sm:gap-5 md:justify-center">
               {filteredProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <div
+                  key={product.id}
+                  className="w-[calc((100%-0.75rem)/2)] sm:w-[calc((100%-1.25rem)/2)] md:w-[calc((100%-2.5rem)/3)] lg:w-[calc((100%-3.75rem)/4)]"
+                >
+                  <ProductCard product={product} />
+                </div>
               ))}
             </div>
           </>
