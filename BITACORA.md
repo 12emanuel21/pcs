@@ -2,6 +2,9 @@
 
 ## 2026-10-18 · Tema: next-themes estándar, un proveedor por zona
 
+**Estado: CERRADO.** Probado manualmente en navegador: claro, oscuro y sistema
+funcionan en `/admin`, y la vitrina respeta su tema. Fusionado en `main`.
+
 Commit `1ae6f4f` en la rama `fix/theme-estandar` (el estado anterior quedó en
 `c909840`).
 
@@ -79,3 +82,25 @@ Commit `1ae6f4f` en la rama `fix/theme-estandar` (el estado anterior quedó en
   aparecerá como pendiente porque producción no la tiene registrada en su
   historial; habrá que marcarla como aplicada
   (`supabase migration repair --status applied 20261018000000`).
+
+## 2026-10-18 · Cierre del arreglo de temas
+
+### Qué se hizo
+- `fix/theme-estandar` fusionada en `main` (fast-forward).
+- El arreglo de temas queda **CERRADO**: probado manualmente en navegador
+  (claro, oscuro y sistema en `/admin`; la vitrina respeta su tema). Esto
+  cubre lo que quedó "sin probar" en la primera entrada.
+
+### Mejora opcional (no urgente)
+- En producción, `stores.default_theme` es **nullable** y probablemente **sin
+  CHECK**: se creó a mano antes de la migración. La migración
+  `20261018000000_stores_default_theme.sql` no lo corrige si se vuelve a
+  ejecutar, porque `ADD COLUMN IF NOT EXISTS` no altera una columna que ya
+  existe (sí agregaría el CHECK si falta). La app no se rompe: trata `null`
+  y cualquier valor desconocido como `system`. Para dejarlo como documenta la
+  migración: rellenar nulos con `'system'`, luego `SET NOT NULL` y
+  `SET DEFAULT 'system'`, y agregar el CHECK si no existe.
+
+### Riesgos
+- Siguen vigentes los riesgos 1 a 3 de la primera entrada (rutas sin
+  proveedor y navegación con `<Link>` entre zonas).
