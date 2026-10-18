@@ -157,3 +157,37 @@ Rama `feat/vitrina-fase-1`.
   empezar el streaming); Next agrega `noindex`, así que no afecta a buscadores.
 - Logos muy anchos o muy altos se recortan en la vista previa de WhatsApp
   (usa la imagen tal cual, sin recuadro).
+
+## 2026-10-18 · Servidor de desarrollo público (test-n8n.autobotsdev.dev)
+
+Rama `feat/vitrina-fase-1`.
+
+### Qué se hizo
+- `allowedDevOrigins` en `next.config.ts` incluye `test-n8n.autobotsdev.dev`
+  (se conservan `192.168.*.*` y `10.*.*.*`). Sin esto la página cargaba pero
+  no hidrataba: Next bloqueaba los recursos de desarrollo desde ese dominio.
+- Script `npm run dev:public` (`next dev -p 5678`).
+
+### Procedimiento
+1. Apagar n8n: el dominio `test-n8n.autobotsdev.dev` apunta al puerto 5678
+   de este PC, el mismo que usa n8n.
+2. Correr `npm run dev:public`.
+3. Abrir `https://test-n8n.autobotsdev.dev/<storeId>` (sirve, por ejemplo,
+   para probar la vista previa de WhatsApp, que necesita una URL pública).
+4. Al terminar, detener el servidor (Ctrl+C) y volver a levantar n8n si hace
+   falta.
+
+### Sin probar
+- No se probó desde el dominio público después del cambio (debe hacerlo el
+  usuario con el servidor corriendo).
+- Server Actions desde ese dominio: si el túnel/proxy no reenvía el host
+  público en `x-forwarded-host`, Next las rechazaría por CSRF y habría que
+  agregar el dominio también en `experimental.serverActions.allowedOrigins`.
+
+### Riesgos
+- **Mientras `dev:public` corre, el servidor de desarrollo queda expuesto a
+  internet:** cualquiera con la URL ve la app en modo desarrollo (mensajes de
+  error con trazas y código fuente, recarga en caliente) y usa la misma
+  configuración de Supabase que el `.env` local. No dejarlo encendido sin
+  supervisión.
+- No pueden correr n8n y `dev:public` a la vez (mismo puerto 5678).

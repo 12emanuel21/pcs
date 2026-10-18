@@ -5,7 +5,9 @@ const nextConfig: NextConfig = {
   // WiFi) cargue el servidor de desarrollo por la IP local del PC, por ej.
   // http://192.168.1.50:3000. Sin esto, Next bloquea los recursos de
   // desarrollo (JS, recarga en caliente) para orígenes distintos de localhost.
-  allowedDevOrigins: ["192.168.*.*", "10.*.*.*"],
+  // test-n8n.autobotsdev.dev: dominio público que apunta al puerto 5678 de
+  // este PC (ver `npm run dev:public` y BITACORA.md).
+  allowedDevOrigins: ["192.168.*.*", "10.*.*.*", "test-n8n.autobotsdev.dev"],
   experimental: {
     agentFeedback: true,
   },
