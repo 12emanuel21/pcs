@@ -107,6 +107,8 @@ Commit `1ae6f4f` en la rama `fix/theme-estandar` (el estado anterior quedó en
 
 ## 2026-10-18 · Vitrina, fase 1: lo que se veía roto
 
+**Estado: CERRADO.** Probada en celular y funciona. Fusionada en `main`.
+
 Rama `feat/vitrina-fase-1`.
 
 ### Qué se hizo
