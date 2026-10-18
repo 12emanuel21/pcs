@@ -54,3 +54,28 @@ Commit `1ae6f4f` en la rama `fix/theme-estandar` (el estado anterior quedó en
    pestaña nueva (`target="_blank"`), así que este caso no ocurre desde la UI
    actual; entre `/admin` y `/superadmin` comparten clave, así que el tema
    coincide.
+
+## 2026-10-18 · Migración documentada: `stores.default_theme`
+
+### Qué se hizo
+- Se creó `supabase/migrations/` (no existía) con
+  `20261018000000_stores_default_theme.sql`: columna `default_theme TEXT NOT
+  NULL DEFAULT 'system'` y restricción `stores_default_theme_check`
+  (`light`, `dark`, `system`). Es idempotente (`IF NOT EXISTS` y un bloque
+  `DO` que revisa `pg_constraint`).
+- La columna **ya se aplicó manualmente en producción desde el SQL Editor**
+  de Supabase. La migración solo la documenta.
+
+### Sin probar
+- El archivo no se ejecutó contra ninguna base de datos (ni local ni
+  producción) desde este repositorio.
+- No se confirmó si en producción la restricción existe con ese nombre
+  exacto. Si se creó con otro nombre, la migración agregaría una segunda
+  restricción equivalente (inofensiva, pero duplicada).
+
+### Riesgos
+- El proyecto no usa todavía Supabase CLI (`supabase/config.toml` no existe).
+  Si más adelante se adopta y se corre `supabase db push`, esta migración
+  aparecerá como pendiente porque producción no la tiene registrada en su
+  historial; habrá que marcarla como aplicada
+  (`supabase migration repair --status applied 20261018000000`).
