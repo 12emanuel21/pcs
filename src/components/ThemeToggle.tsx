@@ -3,7 +3,6 @@
 import { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
 import { Moon, Sun, SunMoon } from "lucide-react";
-import { useStoreTheme } from "@/components/store/StoreThemeScope";
 import { isThemeOption, nextThemeOption, THEME_LABELS, type ThemeOption } from "@/lib/theme";
 
 const ICONS: Record<ThemeOption, typeof Sun> = {
@@ -18,20 +17,15 @@ interface ThemeToggleProps {
   className?: string;
 }
 
-// Alterna claro -> oscuro -> sistema. Dentro de una vitrina (StoreThemeScope)
-// cambia solo el tema de esa tienda; fuera, el tema global de next-themes.
+// Alterna claro -> oscuro -> sistema con el ThemeProvider más cercano (panel,
+// SuperAdmin o la vitrina de la tienda, que guarda su propia elección).
 export default function ThemeToggle({ className = "" }: ThemeToggleProps) {
-  const storeTheme = useStoreTheme();
-  const global = useTheme();
+  const { theme, setTheme } = useTheme();
   // El tema guardado solo se conoce en el navegador: hasta montar se muestra
   // un ícono neutro para no causar errores de hidratación.
   const mounted = useSyncExternalStore(noopSubscribe, () => true, () => false);
 
-  const actual: ThemeOption = storeTheme
-    ? storeTheme.theme
-    : isThemeOption(global.theme)
-      ? global.theme
-      : "system";
+  const actual: ThemeOption = isThemeOption(theme) ? theme : "system";
   // Todo lo renderizado (ícono y textos) usa el mismo valor en servidor e
   // hidratación; el real aparece al montar.
   const current = mounted ? actual : "system";
@@ -39,9 +33,7 @@ export default function ThemeToggle({ className = "" }: ThemeToggleProps) {
   const Icon = ICONS[current];
 
   const handleClick = () => {
-    const target = nextThemeOption(actual);
-    if (storeTheme) storeTheme.setTheme(target);
-    else global.setTheme(target);
+    setTheme(nextThemeOption(actual));
   };
 
   return (

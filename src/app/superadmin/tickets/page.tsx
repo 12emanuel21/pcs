@@ -53,13 +53,13 @@ async function TicketsInbox() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-900">Tickets de Soporte</h1>
-      <p className="mt-1 text-sm text-slate-500">
+      <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Tickets de Soporte</h1>
+      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
         Solicitudes enviadas por los comerciantes desde su panel.
       </p>
 
       {tickets.length === 0 ? (
-        <div className="mt-10 flex flex-col items-center gap-2 text-slate-500">
+        <div className="mt-10 flex flex-col items-center gap-2 text-slate-500 dark:text-slate-400">
           <Inbox size={36} />
           No hay tickets todavía.
         </div>
@@ -68,12 +68,12 @@ async function TicketsInbox() {
           {tickets.map((ticket) => (
             <li
               key={ticket.id}
-              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900"
             >
               <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
-                  <p className="font-semibold text-slate-900">{ticket.subject}</p>
-                  <p className="mt-0.5 text-xs text-slate-500">
+                  <p className="font-semibold text-slate-900 dark:text-slate-100">{ticket.subject}</p>
+                  <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
                     {ticket.stores?.name ?? ticket.store_id} ·{" "}
                     <span className="font-mono">/{ticket.store_id}</span> ·{" "}
                     {dateFormatter.format(new Date(ticket.created_at))}
@@ -81,7 +81,7 @@ async function TicketsInbox() {
                 </div>
                 <TicketStatusBadge status={ticket.status} />
               </div>
-              <p className="mt-3 whitespace-pre-wrap text-sm text-slate-700">
+              <p className="mt-3 whitespace-pre-wrap text-sm text-slate-700 dark:text-slate-300">
                 {ticket.message}
               </p>
               <TicketReplyForm ticket={ticket} />

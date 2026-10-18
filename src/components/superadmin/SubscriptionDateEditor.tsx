@@ -28,7 +28,7 @@ export default function SubscriptionDateEditor({
         onClick={() => setIsOpen(true)}
         aria-label={`Editar vencimiento de ${storeName}`}
         title="Editar fecha"
-        className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-900"
+        className="rounded p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-100"
       >
         <Pencil size={14} />
       </button>
@@ -86,35 +86,35 @@ function EditorDialog({
       <form
         onSubmit={handleSubmit}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl"
+        className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900"
       >
         <div className="flex items-center justify-between">
-          <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900">
+          <h2 className="flex items-center gap-2 text-lg font-semibold text-slate-900 dark:text-slate-100">
             <CalendarClock size={20} />
             Vencimiento
           </h2>
           <button
             type="button"
             onClick={close}
-            className="rounded p-1 text-slate-500 hover:bg-slate-100"
+            className="rounded p-1 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
             aria-label="Cerrar"
           >
             <X size={20} />
           </button>
         </div>
-        <p className="mt-1 text-sm text-slate-500">{storeName}</p>
+        <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{storeName}</p>
 
         <fieldset disabled={isPending} className="mt-4 flex flex-col gap-4">
-          <label className="flex flex-col gap-1 text-sm font-medium text-slate-700">
+          <label className="flex flex-col gap-1 text-sm font-medium text-slate-700 dark:text-slate-300">
             Activa hasta (inclusive)
             <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
               required
-              className="rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+              className="rounded-lg border border-slate-300 px-3 py-2 text-slate-900 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-slate-700 dark:text-slate-100"
             />
-            <span className="text-xs font-normal text-slate-500">
+            <span className="text-xs font-normal text-slate-500 dark:text-slate-400">
               La tienda funciona todo ese día y se corta a la medianoche (hora
               de Colombia).
             </span>
@@ -125,7 +125,7 @@ function EditorDialog({
               type="button"
               onClick={() => save(null)}
               disabled={currentDate === null}
-              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 disabled:opacity-40"
+              className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-100 disabled:opacity-40 dark:text-slate-400 dark:hover:bg-slate-800"
             >
               <InfinityIcon size={16} />
               Dejar ilimitada

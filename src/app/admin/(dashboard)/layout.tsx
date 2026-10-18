@@ -159,7 +159,7 @@ async function SuperAdminLink() {
   return (
     <Link
       href="/superadmin"
-      className="flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
+      className="flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800 dark:bg-slate-700 dark:hover:bg-slate-600"
     >
       <ShieldCheck size={16} />
       <span className="hidden sm:inline">Control Maestro</span>

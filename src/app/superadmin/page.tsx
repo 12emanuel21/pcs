@@ -103,7 +103,7 @@ async function SuperAdminDashboard() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-900">Tiendas y Clientes</h1>
+      <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Tiendas y Clientes</h1>
 
       <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
@@ -133,22 +133,22 @@ async function SuperAdminDashboard() {
       </div>
 
       <section className="mt-8">
-        <h2 className="text-sm font-semibold text-slate-700">
+        <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
           Intención de compra global (Últimos 7 días)
         </h2>
-        <p className="mb-3 text-xs text-slate-500">
+        <p className="mb-3 text-xs text-slate-500 dark:text-slate-400">
           Suma de todas las tiendas por día, sin los pedidos cancelados.
         </p>
         <SalesChart data={getSalesDataForChart(logs)} />
       </section>
 
       <div className="mt-10 flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-slate-900">Tiendas</h2>
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Tiendas</h2>
         <CreateStoreModal />
       </div>
-      <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
-        <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-          <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
+      <div className="mt-4 overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
+        <table className="min-w-full divide-y divide-slate-200 text-left text-sm dark:divide-slate-800">
+          <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:bg-slate-800/50 dark:text-slate-400">
             <tr>
               <th className="px-4 py-3">Tienda</th>
               <th className="px-4 py-3">WhatsApp</th>
@@ -160,10 +160,10 @@ async function SuperAdminDashboard() {
               <th className="px-4 py-3 text-right">Acciones</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
             {stores.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-slate-500">
+                <td colSpan={8} className="px-4 py-8 text-center text-slate-500 dark:text-slate-400">
                   Aún no hay tiendas registradas.
                 </td>
               </tr>
@@ -172,23 +172,23 @@ async function SuperAdminDashboard() {
                 const stats = statsByStore.get(store.id);
                 const isActive = store.is_active !== false;
                 return (
-                  <tr key={store.id} className="hover:bg-slate-50">
+                  <tr key={store.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                     <td className="px-4 py-3">
-                      <p className="font-medium text-slate-900">{store.name}</p>
-                      <p className="font-mono text-xs text-slate-400">/{store.id}</p>
+                      <p className="font-medium text-slate-900 dark:text-slate-100">{store.name}</p>
+                      <p className="font-mono text-xs text-slate-400 dark:text-slate-500">/{store.id}</p>
                     </td>
-                    <td className="px-4 py-3 tabular-nums text-slate-700">
+                    <td className="px-4 py-3 tabular-nums text-slate-700 dark:text-slate-300">
                       {store.whatsapp_number}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-slate-700">
+                    <td className="whitespace-nowrap px-4 py-3 text-slate-700 dark:text-slate-300">
                       {store.created_at
                         ? dateFormatter.format(new Date(store.created_at))
                         : "—"}
                     </td>
-                    <td className="px-4 py-3 text-right tabular-nums text-slate-700">
+                    <td className="px-4 py-3 text-right tabular-nums text-slate-700 dark:text-slate-300">
                       {stats?.orders ?? 0}
                     </td>
-                    <td className="px-4 py-3 text-right tabular-nums text-slate-700">
+                    <td className="px-4 py-3 text-right tabular-nums text-slate-700 dark:text-slate-300">
                       {formatCOP(stats?.volume ?? 0)}
                     </td>
                     <td className="whitespace-nowrap px-4 py-3">
@@ -209,7 +209,7 @@ async function SuperAdminDashboard() {
                         <form action={startImpersonation.bind(null, store.id)}>
                           <button
                             type="submit"
-                            className="inline-flex items-center gap-1.5 rounded-lg bg-amber-100 px-3 py-1.5 text-xs font-medium text-amber-900 hover:bg-amber-200"
+                            className="inline-flex items-center gap-1.5 rounded-lg bg-amber-100 px-3 py-1.5 text-xs font-medium text-amber-900 hover:bg-amber-200 dark:bg-amber-950/60 dark:text-amber-200 dark:hover:bg-amber-900/60"
                           >
                             <Wrench size={14} />
                             Administrar
@@ -219,7 +219,7 @@ async function SuperAdminDashboard() {
                           href={`/${store.id}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100"
+                          className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-100 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
                         >
                           Ver tienda
                           <ExternalLink size={14} />
@@ -244,17 +244,17 @@ function SubscriptionCell({ store }: { store: StoreRow }) {
 
   let badge: { text: string; className: string } | null = null;
   if (days !== null && days < 0) {
-    badge = { text: "Vencida", className: "bg-red-100 text-red-700" };
+    badge = { text: "Vencida", className: "bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300" };
   } else if (days !== null && days <= 5) {
     badge = {
       text: days === 0 ? "Vence hoy" : `Vence en ${days} d`,
-      className: "bg-yellow-100 text-yellow-800",
+      className: "bg-yellow-100 text-yellow-800 dark:bg-yellow-950/60 dark:text-yellow-300",
     };
   }
 
   return (
     <div className="flex items-center gap-2">
-      <span className={endDate ? "text-slate-700" : "text-slate-400"}>
+      <span className={endDate ? "text-slate-700 dark:text-slate-300" : "text-slate-400 dark:text-slate-500"}>
         {endDate ? formatSubscriptionDate(endDate) : "Ilimitado"}
       </span>
       {badge && (

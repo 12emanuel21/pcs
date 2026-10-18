@@ -1,7 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { ThemeProvider } from "@/components/ThemeProvider";
-import ThemedToaster from "@/components/ThemedToaster";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -31,22 +29,15 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     // suppressHydrationWarning: next-themes pone la clase del tema en <html>
-    // antes de hidratar (es lo esperado, no un error).
+    // antes de hidratar (es lo esperado, no un error). El ThemeProvider vive
+    // en cada zona (admin, superadmin, vitrina), no aquí.
     <html
       lang="es"
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-          <ThemedToaster />
-        </ThemeProvider>
+        {children}
       </body>
     </html>
   );

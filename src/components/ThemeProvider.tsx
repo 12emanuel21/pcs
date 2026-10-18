@@ -1,13 +1,36 @@
 "use client";
 
-import type { ComponentProps } from "react";
+import type { ReactNode } from "react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
+import ThemedToaster from "@/components/ThemedToaster";
+import type { ThemeOption } from "@/lib/theme";
 
-// Tema global (clase en <html>). El modo claro usa la clase "theme-light"
-// (no "light"): la clase "light" queda reservada para que la vitrina de una
-// tienda pueda forzar claro en su contenedor (ver globals.css).
-export function ThemeProvider(props: ComponentProps<typeof NextThemesProvider>) {
+interface ThemeProviderProps {
+  children: ReactNode;
+  // Dónde se guarda la elección del usuario. El panel y el SuperAdmin usan la
+  // clave por defecto ("theme"); cada vitrina usa la suya.
+  storageKey?: string;
+  defaultTheme?: ThemeOption;
+}
+
+// next-themes con su comportamiento nativo: pone o quita la clase .dark en
+// <html>. Un ThemeProvider anidado no hace nada, por eso no va en el layout
+// raíz: cada zona (panel, SuperAdmin, vitrina) monta el suyo.
+export function ThemeProvider({
+  children,
+  storageKey,
+  defaultTheme = "system",
+}: ThemeProviderProps) {
   return (
-    <NextThemesProvider value={{ light: "theme-light", dark: "dark" }} {...props} />
+    <NextThemesProvider
+      attribute="class"
+      defaultTheme={defaultTheme}
+      enableSystem
+      disableTransitionOnChange
+      storageKey={storageKey}
+    >
+      {children}
+      <ThemedToaster />
+    </NextThemesProvider>
   );
 }

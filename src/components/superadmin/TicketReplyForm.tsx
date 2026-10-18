@@ -27,22 +27,22 @@ export default function TicketReplyForm({ ticket }: { ticket: SupportTicket }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mt-4 border-t border-slate-100 pt-4">
+    <form onSubmit={handleSubmit} className="mt-4 border-t border-slate-100 pt-4 dark:border-slate-800">
       <fieldset disabled={isPending} className="flex flex-col gap-3">
         <textarea
           name="admin_reply"
           rows={3}
           defaultValue={ticket.admin_reply ?? ""}
           placeholder="Escribe la respuesta para el comerciante..."
-          className="resize-y rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+          className="resize-y rounded-lg border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-slate-700 dark:text-slate-100"
         />
         <div className="flex flex-wrap items-center justify-end gap-2">
-          <label className="flex items-center gap-2 text-sm text-slate-600">
+          <label className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
             Estado
             <select
               name="status"
               defaultValue={ticket.status === "OPEN" ? "IN_PROGRESS" : ticket.status}
-              className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm text-slate-900 outline-none focus:border-indigo-500"
+              className="rounded-lg border border-slate-300 px-2 py-1.5 text-sm text-slate-900 outline-none focus:border-indigo-500 dark:border-slate-700 dark:text-slate-100"
             >
               {TICKET_STATUSES.map((status) => (
                 <option key={status} value={status}>

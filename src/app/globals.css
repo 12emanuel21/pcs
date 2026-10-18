@@ -33,14 +33,8 @@ body {
   }
 }
 
-/* Modo oscuro por clase:
-   - .dark en <html> lo pone next-themes (tema global: panel y resto).
-   - La vitrina puede forzar su propio tema con .light o .dark en su
-     contenedor (tema por defecto de la tienda o elección del comprador).
-   dark: aplica dentro de .dark salvo que haya un .light más abajo. En <html>
-   el modo claro usa la clase "theme-light" (no "light") para que solo los
-   alcances locales anulen el oscuro. */
-@custom-variant dark (&:where(.dark, .dark *):not(:where(.light, .light *)));
+/* Modo oscuro por clase (estándar): next-themes pone .dark en <html>. */
+@custom-variant dark (&:where(.dark, .dark *));
 
 /* Color de marca de la tienda (vitrina pública). StoreThemeScope define
    --brand, --brand-fg, --brand-dark y --brand-dark-fg con brandStyle(); aquí
@@ -50,16 +44,9 @@ body {
   --brand-current-fg: var(--brand-fg);
 }
 
-.dark .brand-scope,
-.brand-scope.dark {
+.dark .brand-scope {
   --brand-current: var(--brand-dark);
   --brand-current-fg: var(--brand-dark-fg);
-}
-
-/* Tienda forzada a claro dentro de un <html> oscuro (va al final: gana). */
-.brand-scope.light {
-  --brand-current: var(--brand);
-  --brand-current-fg: var(--brand-fg);
 }
 
 @theme inline {

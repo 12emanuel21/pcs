@@ -7,7 +7,7 @@ import { createMerchantAndStore } from "@/app/superadmin/actions";
 import { slugify } from "@/lib/slug";
 
 const inputClass =
-  "rounded-lg border border-slate-300 px-3 py-2 font-normal text-slate-900 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500";
+  "rounded-lg border border-slate-300 px-3 py-2 font-normal text-slate-900 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 dark:border-slate-700 dark:text-slate-100";
 
 export default function CreateStoreModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -78,16 +78,16 @@ function CreateStoreForm({ onClose }: { onClose: () => void }) {
       <form
         onSubmit={handleSubmit}
         onClick={(e) => e.stopPropagation()}
-        className="max-h-full w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-xl"
+        className="max-h-full w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-xl dark:bg-slate-900"
       >
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-900">
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
             Nueva tienda / cliente
           </h2>
           <button
             type="button"
             onClick={close}
-            className="rounded p-1 text-slate-500 hover:bg-slate-100"
+            className="rounded p-1 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"
             aria-label="Cerrar"
           >
             <X size={20} />
@@ -96,9 +96,9 @@ function CreateStoreForm({ onClose }: { onClose: () => void }) {
 
         <fieldset
           disabled={isPending}
-          className="mt-4 flex flex-col gap-4 text-sm font-medium text-slate-700"
+          className="mt-4 flex flex-col gap-4 text-sm font-medium text-slate-700 dark:text-slate-300"
         >
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
             Tienda
           </p>
           <label className="flex flex-col gap-1">
@@ -115,8 +115,8 @@ function CreateStoreForm({ onClose }: { onClose: () => void }) {
 
           <label className="flex flex-col gap-1">
             Slug / ID de la URL *
-            <div className="flex items-center overflow-hidden rounded-lg border border-slate-300 focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500">
-              <span className="bg-slate-50 px-3 py-2 font-normal text-slate-400">
+            <div className="flex items-center overflow-hidden rounded-lg border border-slate-300 focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500 dark:border-slate-700">
+              <span className="bg-slate-50 px-3 py-2 font-normal text-slate-400 dark:bg-slate-800/50 dark:text-slate-500">
                 /
               </span>
               <input
@@ -125,10 +125,10 @@ function CreateStoreForm({ onClose }: { onClose: () => void }) {
                 value={slug}
                 onChange={handleSlugChange}
                 placeholder="compuparque-104"
-                className="flex-1 px-2 py-2 font-mono font-normal text-slate-900 outline-none"
+                className="flex-1 px-2 py-2 font-mono font-normal text-slate-900 outline-none dark:text-slate-100"
               />
             </div>
-            <span className="text-xs font-normal text-slate-500">
+            <span className="text-xs font-normal text-slate-500 dark:text-slate-400">
               Es la URL pública del catálogo. No se puede cambiar después.
             </span>
           </label>
@@ -145,7 +145,7 @@ function CreateStoreForm({ onClose }: { onClose: () => void }) {
             />
           </label>
 
-          <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <p className="mt-2 text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
             Acceso del dueño
           </p>
           <label className="flex flex-col gap-1">
@@ -174,26 +174,26 @@ function CreateStoreForm({ onClose }: { onClose: () => void }) {
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute inset-y-0 right-2 flex items-center text-slate-400 hover:text-slate-700"
+                className="absolute inset-y-0 right-2 flex items-center text-slate-400 hover:text-slate-700 dark:text-slate-500 dark:hover:text-slate-200"
                 aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
               >
                 {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
-            <span className="text-xs font-normal text-slate-500">
+            <span className="text-xs font-normal text-slate-500 dark:text-slate-400">
               Mínimo 8 caracteres. Pídele al dueño que la cambie al ingresar.
             </span>
           </label>
 
           {error && (
-            <p className="rounded-lg bg-red-50 px-3 py-2 text-red-700">{error}</p>
+            <p className="rounded-lg bg-red-50 px-3 py-2 text-red-700 dark:bg-red-950/40 dark:text-red-300">{error}</p>
           )}
 
           <div className="mt-2 flex justify-end gap-2">
             <button
               type="button"
               onClick={close}
-              className="rounded-lg border border-slate-300 px-4 py-2 hover:bg-slate-100"
+              className="rounded-lg border border-slate-300 px-4 py-2 hover:bg-slate-100 dark:border-slate-700 dark:hover:bg-slate-800"
             >
               Cancelar
             </button>

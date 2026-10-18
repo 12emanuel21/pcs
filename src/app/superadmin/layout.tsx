@@ -3,6 +3,8 @@ import Link from "next/link";
 import { LogOut, ShieldCheck, Store as StoreIcon } from "lucide-react";
 import { logout } from "@/app/admin/actions";
 import SuperAdminTabs from "@/components/superadmin/SuperAdminTabs";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import ThemeToggle from "@/components/ThemeToggle";
 import { getOwnStore, requireSuperAdmin } from "@/lib/auth";
 
 export const metadata = {
@@ -16,50 +18,58 @@ export default function SuperAdminLayout({
   children,
 }: LayoutProps<"/superadmin">) {
   return (
-    // "light": el SuperAdmin aún no tiene estilos oscuros; esta clase anula el
-    // tema oscuro global en toda la sección (ver la variante dark en globals.css).
-    <div className="light flex min-h-full flex-1 flex-col bg-slate-100">
-      <header className="bg-slate-900 text-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4">
-          <div className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-500">
-              <ShieldCheck size={20} />
-            </span>
-            <div>
-              <p className="font-semibold leading-tight">LocalStore SaaS</p>
-              <p className="text-xs text-slate-400">SuperAdmin</p>
+    // Mismo tema que el panel de tienda (clave "theme" de next-themes).
+    <ThemeProvider>
+      <div className="flex min-h-full flex-1 flex-col bg-slate-100 dark:bg-slate-950 dark:[color-scheme:dark]">
+        {/* La barra superior es oscura en ambos temas; en oscuro se separa del
+          fondo con un tono más profundo y un borde. */}
+        <header className="bg-slate-900 text-white dark:border-b dark:border-slate-800 dark:bg-black">
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4">
+            <div className="flex items-center gap-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-500">
+                <ShieldCheck size={20} />
+              </span>
+              <div>
+                <p className="font-semibold leading-tight">LocalStore SaaS</p>
+                <p className="text-xs text-slate-400">SuperAdmin</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Suspense fallback={null}>
+                <AdminEmail />
+              </Suspense>
+              <Suspense fallback={null}>
+                <OwnStoreLink />
+              </Suspense>
+              <ThemeToggle className="text-slate-300 hover:bg-slate-800 hover:text-white" />
+              <form action={logout}>
+                <button
+                  type="submit"
+                  className="flex items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-1.5 text-sm font-medium text-slate-200 hover:bg-slate-800"
+                >
+                  <LogOut size={16} />
+                  <span className="hidden sm:inline">Cerrar sesión</span>
+                </button>
+              </form>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <Suspense fallback={null}>
-              <AdminEmail />
-            </Suspense>
-            <Suspense fallback={null}>
-              <OwnStoreLink />
-            </Suspense>
-            <form action={logout}>
-              <button
-                type="submit"
-                className="flex items-center gap-1.5 rounded-lg border border-slate-700 px-3 py-1.5 text-sm font-medium text-slate-200 hover:bg-slate-800"
-              >
-                <LogOut size={16} />
-                <span className="hidden sm:inline">Cerrar sesión</span>
-              </button>
-            </form>
-          </div>
-        </div>
-        <nav className="mx-auto flex max-w-7xl items-center gap-6 overflow-x-auto px-6">
-          <SuperAdminTabs />
-        </nav>
-      </header>
-      <main className="mx-auto w-full max-w-7xl flex-1 p-6">
-        <Suspense
-          fallback={<p className="text-slate-500">Cargando panel maestro...</p>}
-        >
-          <SuperAdminGuard>{children}</SuperAdminGuard>
-        </Suspense>
-      </main>
-    </div>
+          <nav className="mx-auto flex max-w-7xl items-center gap-6 overflow-x-auto px-6">
+            <SuperAdminTabs />
+          </nav>
+        </header>
+        <main className="mx-auto w-full max-w-7xl flex-1 p-6">
+          <Suspense
+            fallback={
+              <p className="text-slate-500 dark:text-slate-400">
+                Cargando panel maestro...
+              </p>
+            }
+          >
+            <SuperAdminGuard>{children}</SuperAdminGuard>
+          </Suspense>
+        </main>
+      </div>
+    </ThemeProvider>
   );
 }
 
