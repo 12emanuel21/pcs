@@ -196,6 +196,8 @@ Rama `feat/vitrina-fase-1`.
 
 ## 2026-10-18 · Vitrina, fase 2A: tarjeta de producto y botón del carrito
 
+**Estado: CERRADO.** Probada y funciona. Fusionada en `main`.
+
 Rama `feat/vitrina-fase-2a` (sale de `main` con la fase 1 ya fusionada).
 
 ### Qué se hizo
@@ -256,6 +258,8 @@ Rama `feat/vitrina-fase-2a` (sale de `main` con la fase 1 ya fusionada).
   nada; decidir si se mantiene esa opción.
 
 ## 2026-10-18 · Error "reading 'name'" en la vitrina por el dominio público
+
+**Estado: RESUELTO.** El usuario confirmó que era la caché de Cloudflare.
 
 Rama `feat/vitrina-fase-2a`.
 
