@@ -42,16 +42,22 @@ body {
 .brand-scope {
   --brand-current: var(--brand);
   --brand-current-fg: var(--brand-fg);
+  /* "Tinta" de marca: el color de la tienda oscurecido (claro) o aclarado
+     (oscuro), legible sobre los fondos suaves de marca aunque el color sea
+     muy claro (ej. amarillo). Uso: text-brand-ink. */
+  --brand-current-ink: color-mix(in oklab, var(--brand-current) 70%, #18181b);
 }
 
 .dark .brand-scope {
   --brand-current: var(--brand-dark);
   --brand-current-fg: var(--brand-dark-fg);
+  --brand-current-ink: color-mix(in oklab, var(--brand-current) 70%, #ffffff);
 }
 
 @theme inline {
   --color-brand: var(--brand-current, #18181b);
   --color-brand-fg: var(--brand-current-fg, #ffffff);
+  --color-brand-ink: var(--brand-current-ink, #3f3f46);
 }
 
 /* "Pop" del contador del carrito al agregar un producto. */

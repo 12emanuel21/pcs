@@ -104,3 +104,56 @@ Commit `1ae6f4f` en la rama `fix/theme-estandar` (el estado anterior quedó en
 ### Riesgos
 - Siguen vigentes los riesgos 1 a 3 de la primera entrada (rutas sin
   proveedor y navegación con `<Link>` entre zonas).
+
+## 2026-10-18 · Vitrina, fase 1: lo que se veía roto
+
+Rama `feat/vitrina-fase-1`.
+
+### Qué se hizo
+- **Metadatos:** `generateMetadata` en `/[storeId]` con el nombre de la tienda
+  como título, descripción y Open Graph/Twitter con el logo. El layout raíz
+  pasa de "Create Next App" a "LocalStore". La tienda se lee una sola vez por
+  request (`getPublicStore` con `cache()` en `src/lib/store-data.ts`).
+- **Imágenes:** `ImageWithFallback` evita el ícono roto del navegador (también
+  si la imagen falla antes de hidratar). Sin foto o con foto rota, el producto
+  muestra su inicial sobre un tono suave del color de la tienda
+  (`ProductImage`, en tarjeta y carrito). Nueva variable `text-brand-ink`
+  (color de marca oscurecido en claro / aclarado en oscuro) para que la inicial
+  se lea con cualquier color.
+- **Logo:** `StoreLogo` con respaldo (inicial sobre el color de marca) en el
+  encabezado y en "fuera de servicio".
+- **Páginas propias en español:** `[storeId]/not-found.tsx` (tienda
+  inexistente), `app/not-found.tsx` (cualquier otra URL) y
+  `[storeId]/error.tsx` (con "Intentar de nuevo" vía `retry()`).
+- **Carga:** esqueleto que imita encabezado, buscador, categorías y grilla
+  (`StorefrontSkeleton`), con `animate-pulse` desactivado si el usuario pide
+  menos movimiento.
+- **Fuera de servicio:** muestra logo y nombre, con la fuente, el color y el
+  tema de la tienda.
+- `allowedDevOrigins` en `next.config.ts` (IPs `192.168.*.*` y `10.*.*.*`) para
+  abrir el servidor de desarrollo desde el celular.
+
+### Verificado
+- `tsc`, `eslint` y `next build` sin errores.
+- Build de producción: con user agent de WhatsApp, el `<head>` de
+  `/electro-demo` trae título, descripción, `og:image` (logo) y `twitter:*`.
+  En navegador, el HTML inicial trae el esqueleto y luego el catálogo.
+- `/no-existe-xyz` muestra "No encontramos esta tienda" con título "Tienda no
+  encontrada"; `/a/b/c` responde 404 con "Página no encontrada".
+
+### Sin probar
+- Nada se vio en un navegador real ni en celular (sin Chromium en WSL).
+- La vista previa real en WhatsApp: requiere una URL pública (no funciona con
+  localhost ni con la IP local).
+- La pantalla de error (no se forzó un fallo de Supabase) y el respaldo de
+  imagen rota con una URL realmente rota.
+
+### Riesgos
+- Las pantallas de carga, no encontrada y error siguen el tema del celular
+  (`SystemThemeScope`), no el `default_theme` de la tienda: todavía no se
+  conoce la tienda. Si la tienda fuerza un tema distinto, el esqueleto puede
+  verse en el otro tema un instante.
+- Una tienda inexistente responde HTTP 200 (el `notFound()` ocurre después de
+  empezar el streaming); Next agrega `noindex`, así que no afecta a buscadores.
+- Logos muy anchos o muy altos se recortan en la vista previa de WhatsApp
+  (usa la imagen tal cual, sin recuadro).

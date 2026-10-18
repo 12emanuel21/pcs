@@ -35,3 +35,10 @@ export default function StoreThemeScope({
     </ThemeProvider>
   );
 }
+
+// Para pantallas de la vitrina sin tienda conocida (cargando, no encontrada,
+// error): siguen el tema del celular. Nadie escribe en esta clave, así que
+// siempre resuelve a "system".
+export function SystemThemeScope({ children }: { children: ReactNode }) {
+  return <ThemeProvider storageKey="store-theme:system">{children}</ThemeProvider>;
+}

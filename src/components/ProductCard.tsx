@@ -1,7 +1,8 @@
 "use client";
 
-import { ImageOff, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { toast } from "sonner";
+import ProductImage from "@/components/store/ProductImage";
 import { formatCOP } from "@/lib/format";
 import { useCartStore } from "@/store/cartStore";
 import type { Product } from "@/types";
@@ -37,22 +38,13 @@ export default function ProductCard({ product }: ProductCardProps) {
   return (
     <article className="group flex flex-col overflow-hidden rounded-2xl border border-zinc-200/80 bg-white shadow-md shadow-zinc-900/5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-zinc-900/10 dark:border-slate-800 dark:bg-slate-900 dark:shadow-black/30 dark:hover:shadow-black/50">
       <div className="relative aspect-square overflow-hidden bg-zinc-100 dark:bg-slate-800">
-        {product.image_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={product.image_url}
-            alt={product.name}
-            loading="lazy"
-            decoding="async"
-            className={`h-full w-full object-cover transition-transform duration-300 group-hover:scale-105 ${
-              isSoldOut ? "opacity-60 grayscale" : ""
-            }`}
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-zinc-300 dark:text-slate-600">
-            <ImageOff size={36} />
-          </div>
-        )}
+        <ProductImage
+          src={product.image_url}
+          name={product.name}
+          className={`transition-transform duration-300 group-hover:scale-105 ${
+            isSoldOut ? "opacity-60 grayscale" : ""
+          }`}
+        />
         {isSoldOut && (
           <span className="absolute left-2.5 top-2.5 rounded-full bg-zinc-800/90 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white backdrop-blur-sm dark:bg-slate-700/90">
             Agotado

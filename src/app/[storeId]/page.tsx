@@ -1,16 +1,55 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
-import { Store as StoreIcon } from "lucide-react";
 import Cart from "@/components/Cart";
+import StatusScreen from "@/components/store/StatusScreen";
+import StoreLogo from "@/components/store/StoreLogo";
 import Storefront from "@/components/store/Storefront";
-import StoreThemeScope from "@/components/store/StoreThemeScope";
+import StorefrontSkeleton from "@/components/store/StorefrontSkeleton";
+import StoreThemeScope, { SystemThemeScope } from "@/components/store/StoreThemeScope";
 import ThemeToggle from "@/components/ThemeToggle";
 import { brandStyle } from "@/lib/brand-colors";
 import { storeFontClassName } from "@/lib/fonts";
+import { getPublicStore } from "@/lib/store-data";
 import { isStoreActive } from "@/lib/store-utils";
 import { supabase } from "@/lib/supabase";
-import type { Product, Store } from "@/types";
+import type { Product } from "@/types";
+
+// Título, descripción y vista previa al compartir el enlace (WhatsApp,
+// Facebook...). Los bots de vista previa reciben estas etiquetas en el <head>
+// sin streaming (Next los detecta por su user agent).
+export async function generateMetadata({
+  params,
+}: PageProps<"/[storeId]">): Promise<Metadata> {
+  const { storeId } = await params;
+  const store = await getPublicStore(storeId).catch(() => null);
+  if (!store) return { title: "Tienda no encontrada" };
+
+  const description = `Mira el catálogo de ${store.name} y haz tu pedido por WhatsApp.`;
+  const images = store.logo_url ? [{ url: store.logo_url, alt: store.name }] : undefined;
+
+  return {
+    // absolute: la vitrina lleva solo el nombre de la tienda, sin la marca
+    // de la plataforma.
+    title: { absolute: store.name },
+    description,
+    openGraph: {
+      type: "website",
+      locale: "es_CO",
+      siteName: store.name,
+      title: store.name,
+      description,
+      images,
+    },
+    twitter: {
+      card: "summary",
+      title: store.name,
+      description,
+      images,
+    },
+  };
+}
 
 // Con cacheComponents, leer params o hacer fetch sin caché debe ocurrir
 // dentro de un <Suspense>; si no, el build falla.
@@ -18,9 +57,9 @@ export default function StorePage({ params }: PageProps<"/[storeId]">) {
   return (
     <Suspense
       fallback={
-        <div className="flex flex-1 items-center justify-center bg-zinc-50 p-8 text-zinc-500 dark:bg-slate-950 dark:text-slate-400">
-          Cargando tienda...
-        </div>
+        <SystemThemeScope>
+          <StorefrontSkeleton />
+        </SystemThemeScope>
       }
     >
       <StoreCatalog params={params} />
@@ -31,13 +70,7 @@ export default function StorePage({ params }: PageProps<"/[storeId]">) {
 async function StoreCatalog({ params }: Pick<PageProps<"/[storeId]">, "params">) {
   const { storeId } = await params;
 
-  const { data: store, error: storeError } = await supabase
-    .from("stores")
-    .select("*")
-    .eq("id", storeId)
-    .maybeSingle<Store>();
-
-  if (storeError) throw storeError;
+  const store = await getPublicStore(storeId);
   if (!store) notFound();
 
   // Pausada manualmente o con la suscripción vencida: sin catálogo ni carrito.
@@ -45,15 +78,33 @@ async function StoreCatalog({ params }: Pick<PageProps<"/[storeId]">, "params">)
   // solo puede leerse en el render por request.
   await connection();
   if (!isStoreActive(store)) {
+    // Con el tema, la fuente y el color de la tienda: el comprador reconoce
+    // dónde está aunque no pueda pedir.
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-4 bg-zinc-50 p-8 text-center dark:bg-slate-950">
-        <span className="flex h-16 w-16 items-center justify-center rounded-full bg-zinc-200 text-zinc-500 dark:bg-slate-800 dark:text-slate-400">
-          <StoreIcon size={32} />
-        </span>
-        <h1 className="max-w-md text-xl font-semibold text-zinc-800 dark:text-slate-100">
-          Esta tienda se encuentra temporalmente fuera de servicio.
-        </h1>
-      </div>
+      <StoreThemeScope
+        storeId={store.id}
+        defaultTheme={store.default_theme}
+        style={brandStyle(store.theme_color)}
+        className={`brand-scope flex flex-1 flex-col ${storeFontClassName(store.font_family)}`}
+      >
+        <StatusScreen
+          visual={
+            <StoreLogo
+              name={store.name}
+              logoUrl={store.logo_url}
+              className="h-20 w-20 rounded-3xl text-3xl shadow-md ring-1 ring-black/5 dark:ring-white/10"
+            />
+          }
+          title={store.name}
+          description={
+            <>
+              Esta tienda no está recibiendo pedidos en este momento.
+              <br />
+              Vuelve a intentarlo más tarde.
+            </>
+          }
+        />
+      </StoreThemeScope>
     );
   }
 
@@ -84,11 +135,13 @@ async function StoreCatalog({ params }: Pick<PageProps<"/[storeId]">, "params">)
         />
         <div className="relative mx-auto flex max-w-6xl items-center gap-4 px-4 py-6 sm:px-6 sm:py-8">
           {store.logo_url && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={store.logo_url}
-              alt={store.name}
-              className="h-14 w-14 shrink-0 rounded-2xl bg-white object-cover shadow-md ring-2 ring-white/40 sm:h-16 sm:w-16"
+            <StoreLogo
+              name={store.name}
+              logoUrl={store.logo_url}
+              // Sobre el encabezado (ya del color de marca), la inicial va en
+              // un recuadro translúcido.
+              fallbackClassName="bg-white/20 text-brand-fg"
+              className="h-14 w-14 shrink-0 rounded-2xl text-2xl shadow-md ring-2 ring-white/40 sm:h-16 sm:w-16"
             />
           )}
           <div className="min-w-0 flex-1">

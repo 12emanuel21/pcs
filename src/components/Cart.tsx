@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import {
-  ImageOff,
   Loader2,
   MessageCircle,
   Minus,
@@ -13,6 +12,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { logOrder } from "@/app/actions/orders";
+import ProductImage from "@/components/store/ProductImage";
 import { formatCOP } from "@/lib/format";
 import { generateWhatsAppLink } from "@/lib/whatsapp";
 import {
@@ -178,18 +178,7 @@ export default function Cart({ store }: CartProps) {
               {items.map((item) => (
                 <li key={item.id} className="flex gap-3 py-3 first:pt-0 last:pb-0">
                   <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-slate-800">
-                    {item.image_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={item.image_url}
-                        alt=""
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center text-zinc-300 dark:text-slate-600">
-                        <ImageOff size={20} />
-                      </div>
-                    )}
+                    <ProductImage src={item.image_url} name={item.name} size="thumb" />
                   </div>
 
                   <div className="flex min-w-0 flex-1 flex-col">
