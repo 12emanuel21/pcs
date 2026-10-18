@@ -58,6 +58,26 @@ body {
   --color-brand: var(--brand-current, #18181b);
   --color-brand-fg: var(--brand-current-fg, #ffffff);
   --color-brand-ink: var(--brand-current-ink, #3f3f46);
+  --color-stage: var(--stage);
+}
+
+/* "Vitrina": fondo neutro donde se apoya cada foto de producto (bg-stage).
+   Las fotos se mezclan con multiply, así el fondo blanco de la mayoría de
+   fotos de comerciantes se funde con el tono de la vitrina. En oscuro la
+   vitrina sigue clara pero atenuada (una vitrina encendida en un cuarto
+   oscuro): un fondo oscuro dejaría esas fotos como recuadros blancos. */
+:root {
+  --stage: #f2f2f4;
+}
+
+.dark {
+  --stage: #d4d4d8;
+}
+
+/* Sobre la vitrina (siempre clara) la inicial de respaldo usa la tinta de
+   marca del modo claro, también en oscuro. */
+.stage {
+  --brand-current-ink: color-mix(in oklab, var(--brand, #18181b) 70%, #18181b);
 }
 
 /* "Pop" del contador del carrito al agregar un producto. */

@@ -106,7 +106,7 @@ export default function Cart({ store }: CartProps) {
         {count > 0 && (
           <span
             key={count}
-            className="animate-cart-pop absolute -right-1 -top-1 flex h-6 min-w-6 items-center justify-center rounded-full bg-white px-1.5 text-xs font-bold tabular-nums text-zinc-900 shadow ring-2 ring-brand"
+            className="animate-cart-pop absolute -right-1 -top-1 flex h-6 min-w-6 items-center justify-center rounded-full bg-white px-1.5 text-[13px] font-bold tabular-nums text-zinc-900 shadow ring-2 ring-brand"
           >
             {count}
           </span>
@@ -128,19 +128,19 @@ export default function Cart({ store }: CartProps) {
         aria-modal="true"
         aria-label="Tu pedido"
         inert={!isOpen}
-        className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-white transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] sm:rounded-l-3xl dark:bg-slate-900 ${
+        className={`fixed right-0 top-0 z-50 flex h-full w-full max-w-md flex-col bg-white transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] sm:rounded-l-3xl dark:bg-zinc-900 ${
           // Sombra solo abierto: cerrado, fuera de pantalla, se asomaba como
           // una franja gris en el borde derecho.
           isOpen ? "translate-x-0 shadow-2xl" : "translate-x-full"
         }`}
       >
-        <header className="flex items-center justify-between border-b border-zinc-100 px-5 py-3 dark:border-slate-800">
+        <header className="flex items-center justify-between border-b border-zinc-100 px-5 py-3 dark:border-zinc-800">
           <div>
             <h2 className="text-lg font-bold tracking-tight text-zinc-900 dark:text-white">
               Tu pedido
             </h2>
             {count > 0 && (
-              <p className="text-xs text-zinc-500 dark:text-slate-400">
+              <p className="text-[13px] text-zinc-500 dark:text-zinc-400">
                 {count} {count === 1 ? "producto" : "productos"}
               </p>
             )}
@@ -148,7 +148,7 @@ export default function Cart({ store }: CartProps) {
           <button
             type="button"
             onClick={() => setIsOpen(false)}
-            className="-mr-2 flex h-11 w-11 items-center justify-center rounded-full text-zinc-500 transition-colors duration-200 hover:bg-zinc-100 hover:text-zinc-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white"
+            className="-mr-2 flex h-11 w-11 items-center justify-center rounded-full text-zinc-500 transition-colors duration-200 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white"
             aria-label="Cerrar carrito"
           >
             <X size={22} />
@@ -161,7 +161,7 @@ export default function Cart({ store }: CartProps) {
               <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-brand/10 text-brand">
                 <ShoppingBag size={36} />
               </div>
-              <p className="text-zinc-500 dark:text-slate-400">
+              <p className="text-zinc-500 dark:text-zinc-400">
                 Tu carrito está vacío. Agrega productos para hacer tu pedido.
               </p>
               <button
@@ -173,22 +173,22 @@ export default function Cart({ store }: CartProps) {
               </button>
             </div>
           ) : (
-            <ul className="flex flex-col divide-y divide-zinc-100 dark:divide-slate-800">
+            <ul className="flex flex-col divide-y divide-zinc-100 dark:divide-zinc-800">
               {items.map((item) => (
                 <li key={item.id} className="flex gap-3 py-3 first:pt-0 last:pb-0">
-                  <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-slate-800">
+                  <div className="stage h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-stage">
                     <ProductImage src={item.image_url} name={item.name} size="thumb" />
                   </div>
 
                   <div className="flex min-w-0 flex-1 flex-col">
                     <div className="flex items-start gap-1">
-                      <p className="line-clamp-2 flex-1 text-sm font-semibold leading-snug text-zinc-900 dark:text-slate-100">
+                      <p className="line-clamp-2 flex-1 text-sm font-semibold leading-snug text-zinc-900 dark:text-zinc-100">
                         {item.name}
                       </p>
                       <button
                         type="button"
                         onClick={() => removeItem(item.id)}
-                        className="-mr-2 -mt-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-zinc-400 transition-colors duration-200 hover:bg-red-50 hover:text-red-600 dark:text-slate-500 dark:hover:bg-red-950/40 dark:hover:text-red-400"
+                        className="-mr-2 -mt-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-zinc-400 transition-colors duration-200 hover:bg-red-50 hover:text-red-600 dark:text-zinc-500 dark:hover:bg-red-950/40 dark:hover:text-red-400"
                         aria-label={`Eliminar ${item.name}`}
                       >
                         <Trash2 size={18} />
@@ -200,7 +200,7 @@ export default function Cart({ store }: CartProps) {
                           {formatCOP(item.price * item.quantity)}
                         </p>
                         {item.quantity > 1 && (
-                          <p className="text-xs tabular-nums text-zinc-400 dark:text-slate-500">
+                          <p className="text-[13px] tabular-nums text-zinc-400 dark:text-zinc-500">
                             {formatCOP(item.price)} c/u
                           </p>
                         )}
@@ -220,9 +220,9 @@ export default function Cart({ store }: CartProps) {
           )}
         </div>
 
-        <footer className="border-t border-zinc-100 px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] dark:border-slate-800">
+        <footer className="border-t border-zinc-100 px-5 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] dark:border-zinc-800">
           <div className="mb-3 flex items-baseline justify-between">
-            <span className="text-sm font-medium text-zinc-500 dark:text-slate-400">
+            <span className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
               Total
             </span>
             <span className="text-2xl font-bold tabular-nums tracking-tight text-zinc-900 dark:text-white">
@@ -242,7 +242,7 @@ export default function Cart({ store }: CartProps) {
             )}
             {isCheckingOut ? "Generando pedido..." : "Comprar por WhatsApp"}
           </button>
-          <p className="mt-2 text-center text-xs text-zinc-400 dark:text-slate-500">
+          <p className="mt-2 text-center text-[13px] text-zinc-400 dark:text-zinc-500">
             Se abrirá WhatsApp con tu pedido listo para enviar.
           </p>
         </footer>
@@ -268,10 +268,10 @@ function QuantityControl({
 }: QuantityControlProps) {
   // Botones de 44x44px (estándar de área táctil en móvil).
   const buttonClass =
-    "flex h-11 w-11 items-center justify-center rounded-full text-zinc-700 transition-all duration-200 hover:bg-white active:scale-90 disabled:cursor-not-allowed disabled:text-zinc-300 disabled:hover:bg-transparent disabled:active:scale-100 dark:text-slate-200 dark:hover:bg-slate-700 dark:disabled:text-slate-600";
+    "flex h-11 w-11 items-center justify-center rounded-full text-zinc-700 transition-all duration-200 hover:bg-white active:scale-90 disabled:cursor-not-allowed disabled:text-zinc-300 disabled:hover:bg-transparent disabled:active:scale-100 dark:text-zinc-200 dark:hover:bg-zinc-700 dark:disabled:text-zinc-600";
 
   return (
-    <div className="flex shrink-0 items-center rounded-full bg-zinc-100 dark:bg-slate-800">
+    <div className="flex shrink-0 items-center rounded-full bg-zinc-100 dark:bg-zinc-800">
       <button
         type="button"
         onClick={onDecrease}

@@ -324,3 +324,71 @@ Rama `feat/vitrina-fase-2a`.
   Cloudflare (fuera del repo): una Cache Rule para ese hostname con "Bypass
   cache" y "Browser TTL: respetar las cabeceras del origen". Mientras tanto,
   recarga forzada (Ctrl+Shift+R) o ventana privada después de cada cambio.
+
+## 2026-10-18 · Vitrina, fase 2B: rediseño visible
+
+Rama `feat/vitrina-fase-2b` (sale de `main` con la 2A fusionada).
+
+### Idea de diseño
+"La vitrina iluminada": cada producto se apoya en un fondo neutro (`bg-stage`,
+`#F2F2F4` en claro, `#D4D4D8` en oscuro) con la foto completa
+(`object-contain`) y `mix-blend-multiply`, que funde el fondo blanco de la
+mayoría de fotos de comerciantes con la vitrina. En oscuro la vitrina sigue
+clara pero atenuada: un fondo oscuro dejaría esas fotos como recuadros
+blancos. Fuera de eso todo es neutro (página blanca / negra); el color lo
+ponen la marca (encabezado, botones) y el verde de WhatsApp en las acciones
+de WhatsApp.
+
+### Qué se hizo
+- **Encabezado:** color de marca sólido sin brillo, logo de 44px, nombre en
+  hasta 2 líneas con tamaño adaptativo (`clamp`), sin subtítulo. A 360px
+  "Electro Parque Central" cabe completo en una línea.
+- **Tarjetas** (`ProductCard.tsx`): sin borde, sombra ni caja; foto completa
+  sobre la vitrina (`rounded-3xl`), nombre 15px, precio 16px semibold, botón
+  en píldora. Sin categoría ni descripción (pasan al detalle). Más aire
+  vertical entre filas (`gap-y-8`).
+- **Detalle** (`ProductDetailSheet.tsx`): al tocar la foto o el nombre. Hoja
+  inferior en celular (tirador que se arrastra para cerrar, `max-h-92dvh`,
+  área segura) y ventana centrada desde `sm`. Foto grande, nombre, precio,
+  aviso de stock, descripción completa (respeta saltos de línea) y el mismo
+  control Agregar / − cantidad +, fijo abajo. Escape y el fondo la cierran;
+  el foco va a "Cerrar" al abrir y vuelve a la tarjeta al cerrar.
+- `AddToCartControl.tsx`: control y hook `useProductCart` compartidos por la
+  tarjeta y el detalle (stock, tope y avisos en un solo lugar).
+- **Pie** (`StoreFooter.tsx`): nombre de la tienda, "Escribir por WhatsApp"
+  (`wa.me/<número>`, se oculta sin número) y "Hecho con LocalStore" (enlace
+  a `/`). Su padding inferior deja libre el botón del carrito.
+- **Textos pequeños:** los de 11–12px pasan a 13px (aviso de stock,
+  "Agotado" ahora en minúsculas, textos del carrito). Ya no hay textos de
+  11–12px en la vitrina.
+- Buscador y categorías en estilo relleno (sin borde ni sombra); carrito y
+  vitrina pasan de la paleta `slate` a `zinc` en oscuro; miniaturas del
+  carrito sobre la vitrina; esqueleto de carga actualizado al nuevo diseño.
+
+### Capturas
+`/home/evargas/dev/app_local_store/capturas/fase-2b/` (fuera del repo):
+`antes/` (grilla a 360px, claro y oscuro, pantalla y página completa; el
+detalle no existía) y `despues/` (grilla y detalle a 360px en claro y
+oscuro, detalle con producto en el carrito y detalle en escritorio a
+1280px).
+
+### Verificado
+- `tsc`, `eslint` y `next build` sin errores.
+- En Chromium: la hoja abre desde la foto y desde el nombre, agregar y "+"
+  funcionan dentro de la hoja; en escritorio abre centrada; Escape la cierra
+  y el foco vuelve al nombre del producto.
+
+### Sin probar
+- Celular real: arrastre del tirador, área segura, rendimiento de
+  `backdrop-blur` en equipos de gama baja.
+- Tiendas con logo ausente, nombres muy largos (3+ líneas se cortan con
+  "…" en la segunda) y fuentes anchas (Oswald, Playfair) en el encabezado.
+- Fotos con fondo de color o transparentes sobre la vitrina (multiply las
+  oscurece un poco, sobre todo en oscuro).
+
+### Riesgos
+- `mix-blend-multiply` oscurece las fotos sobre la vitrina oscura
+  (`#D4D4D8`), alrededor de un 17 %. Si se ve apagado en celulares reales,
+  subir el tono de `--stage` en `.dark` (globals.css).
+- La hoja de detalle y el carrito no se pueden abrir a la vez (el fondo de
+  la hoja tapa el botón del carrito); es intencional.

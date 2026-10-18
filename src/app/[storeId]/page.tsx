@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import Cart from "@/components/Cart";
 import StatusScreen from "@/components/store/StatusScreen";
+import StoreFooter from "@/components/store/StoreFooter";
 import StoreLogo from "@/components/store/StoreLogo";
 import Storefront from "@/components/store/Storefront";
 import StorefrontSkeleton from "@/components/store/StorefrontSkeleton";
@@ -125,15 +126,12 @@ async function StoreCatalog({ params }: Pick<PageProps<"/[storeId]">, "params">)
       storeId={store.id}
       defaultTheme={store.default_theme}
       style={brandStyle(store.theme_color)}
-      className={`brand-scope min-h-full flex-1 bg-zinc-50 text-zinc-900 antialiased dark:bg-slate-950 dark:text-slate-100 dark:[color-scheme:dark] ${storeFontClassName(store.font_family)}`}
+      className={`brand-scope min-h-full flex-1 bg-white text-zinc-900 antialiased dark:bg-black dark:text-zinc-100 dark:[color-scheme:dark] ${storeFontClassName(store.font_family)}`}
     >
-      <header className="relative overflow-hidden bg-brand text-brand-fg">
-        {/* Brillo sutil para que el bloque de color no se vea plano. */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/15 via-transparent to-black/10"
-        />
-        <div className="relative mx-auto flex max-w-6xl items-center gap-4 px-4 py-6 sm:px-6 sm:py-8">
+      {/* Encabezado compacto en el color de la tienda: logo, nombre completo
+          (hasta 2 líneas, con tamaño que se adapta al ancho) y tema. */}
+      <header className="bg-brand text-brand-fg">
+        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3.5 sm:gap-4 sm:px-6 sm:py-5">
           {store.logo_url && (
             <StoreLogo
               name={store.name}
@@ -141,23 +139,20 @@ async function StoreCatalog({ params }: Pick<PageProps<"/[storeId]">, "params">)
               // Sobre el encabezado (ya del color de marca), la inicial va en
               // un recuadro translúcido.
               fallbackClassName="bg-white/20 text-brand-fg"
-              className="h-14 w-14 shrink-0 rounded-2xl text-2xl shadow-md ring-2 ring-white/40 sm:h-16 sm:w-16"
+              className="h-11 w-11 shrink-0 rounded-xl text-xl ring-1 ring-white/30 sm:h-14 sm:w-14 sm:rounded-2xl"
             />
           )}
-          <div className="min-w-0 flex-1">
-            <h1 className="truncate text-2xl font-bold tracking-tight sm:text-3xl">
-              {store.name}
-            </h1>
-            <p className="mt-0.5 text-sm opacity-80">
-              Arma tu pedido y envíalo por WhatsApp
-            </p>
-          </div>
-          <ThemeToggle className="-mr-2 self-start bg-black/10 hover:bg-black/20 sm:self-center" />
+          <h1 className="line-clamp-2 min-w-0 flex-1 text-[clamp(1.125rem,5.2vw,1.875rem)] leading-tight font-semibold tracking-tight text-balance">
+            {store.name}
+          </h1>
+          <ThemeToggle className="-mr-2 bg-black/10 hover:bg-black/20" />
         </div>
       </header>
 
       {/* Buscador, categorías y grid filtrable (Client Component). */}
       <Storefront initialProducts={products} />
+
+      <StoreFooter store={store} />
 
       <Cart store={store} />
     </StoreThemeScope>
