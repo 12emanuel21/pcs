@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { CalendarClock, Infinity as InfinityIcon, Loader2, Pencil, X } from "lucide-react";
 import { toast } from "sonner";
 import { updateSubscriptionDate } from "@/app/superadmin/actions";
+import RenewSubscriptionButton from "@/components/superadmin/RenewSubscriptionButton";
 
 interface SubscriptionDateEditorProps {
   storeId: string;
@@ -105,6 +106,27 @@ function EditorDialog({
         <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{storeName}</p>
 
         <fieldset disabled={isPending} className="mt-4 flex flex-col gap-4">
+          {/* Renovación rápida (pago recibido): suma 31 días al vencimiento
+              vigente, o desde hoy si ya venció, y deja la tienda activa. */}
+          <div>
+            <RenewSubscriptionButton
+              storeId={storeId}
+              storeName={storeName}
+              variant="dialog"
+              onDone={onClose}
+            />
+            <p className="mt-1.5 text-xs text-slate-500 dark:text-slate-400">
+              Suma 31 días a la fecha actual de corte (o desde hoy si ya venció)
+              y reactiva la tienda si estaba suspendida.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3 text-xs text-slate-400 dark:text-slate-500">
+            <span className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+            o elige una fecha
+            <span className="h-px flex-1 bg-slate-200 dark:bg-slate-800" />
+          </div>
+
           <label className="flex flex-col gap-1 text-sm font-medium text-slate-700 dark:text-slate-300">
             Activa hasta (inclusive)
             <input

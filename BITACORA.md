@@ -395,3 +395,65 @@ oscuro, detalle con producto en el carrito y detalle en escritorio a
   subir el tono de `--stage` en `.dark` (globals.css).
 - La hoja de detalle y el carrito no se pueden abrir a la vez (el fondo de
   la hoja tapa el botón del carrito); es intencional.
+
+## 2026-10-18 · SuperAdmin: renovación rápida y pestaña de métricas
+
+Rama `feat/superadmin-renovacion-y-metricas` (sale de `main` con la fase 2B
+fusionada).
+
+### Qué se hizo
+- **`extendSubscription(storeId, daysToAdd = 31)`** en
+  `src/app/superadmin/actions.ts` (fecha de Bogotá):
+  - Vigente (vence hoy o después): suma a la fecha de corte actual (2 días
+    restantes + 31 = 33).
+  - Vencida o `subscription_end` null: suma desde hoy.
+  - **Renovar = pago recibido:** deja `is_active = true` aunque la tienda
+    estuviera suspendida a mano; el resultado trae `reactivated` y el toast
+    lo dice ("(tienda reactivada)").
+  - Escritura condicional (`eq`/`is` sobre el `subscription_end` leído): un
+    doble clic o dos pestañas no suman los días dos veces; el segundo intento
+    devuelve un error claro.
+  - `daysToAdd` entero entre 1 y 366.
+  - Nuevas utilidades en `store-utils.ts`: `getTodayDate` y `addDaysToDate`.
+- **Botones** (`RenewSubscriptionButton.tsx`): "+31 d" compacto en la fila y
+  "+1 Mes (+31 días)" destacado dentro del modal de vencimiento. Toast con la
+  nueva fecha de corte.
+- **`/superadmin` (Tiendas y Clientes)** queda operativo: Tienda, WhatsApp,
+  Vencimiento (fecha, aviso, +31 d y editar), Estado y Acciones (Administrar
+  / Ver tienda). Sin "Creada", "Pedidos" ni "Volumen". Orden: menos días
+  para el vencimiento primero (vencidas arriba, las más atrasadas primero),
+  ilimitadas al final, empates por nombre. Bajo el título: total de tiendas,
+  vencidas y por vencer (≤ 5 días).
+- **`/superadmin/metrics` (Métricas y Ventas)**, nueva pestaña entre
+  Tiendas y Tickets: tarjetas globales (tiendas, pedidos, intención, total
+  pagado, tickets pendientes), `SalesChart` global de 7 días y tabla por
+  tienda (pendientes, pagados, total intención, total pagado) ordenada por
+  intención, con `<tfoot>` "TOTAL GLOBAL".
+  - Definiciones (las mismas del panel de cada tienda): intención = todos
+    los pedidos enviados a WhatsApp, cancelados incluidos; pagado = solo
+    `PAID`. El gráfico excluye cancelados (sin cambios).
+
+### Verificado
+- `tsc`, `eslint` y `next build` con código 0; `/superadmin/metrics` aparece
+  en el build.
+- La regla de fechas, con las funciones reales compiladas: 2 días restantes
+  (columna `date` y `timestamptz`) → +31 = 33; vence hoy; vencida; null;
+  cambio de año; febrero; y a las 10 p. m. de Bogotá (ya otro día en UTC).
+
+### Sin probar
+- Nada se probó en el navegador ni contra Supabase: no hay sesión de
+  SuperAdmin en esta sesión. Falta ver el toast, la reactivación, el orden
+  de la tabla y la pestaña nueva.
+- Que el filtro condicional `eq("subscription_end", valor leído)` coincida
+  con el formato que devuelve PostgREST para `timestamptz` (debería: es el
+  mismo texto que se leyó). Si no coincide, la renovación respondería "El
+  vencimiento cambió mientras tanto" siempre.
+
+### Riesgos
+- **null = "Ilimitado":** renovar una tienda sin fecha la pasa a vencer en
+  31 días (así lo pidió el usuario; las tiendas nuevas se crean sin fecha).
+  Una tienda ilimitada a propósito pierde esa condición si se pulsa "+31 d".
+- Las métricas siguen sumando en JS con el límite de 1000 filas de Supabase
+  por consulta (igual que antes).
+- El total global del `<tfoot>` incluye pedidos de tiendas que ya no
+  existan; en ese caso no sería igual a la suma de las filas.

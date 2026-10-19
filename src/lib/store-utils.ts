@@ -66,11 +66,24 @@ export function getDaysUntilExpiration(
   const endDate = getSubscriptionEndDate(store);
   if (!endDate) return null;
 
-  const today = isoDateFormatter.format(now);
+  const today = getTodayDate(now);
   const diff =
     new Date(`${endDate}T00:00:00Z`).getTime() -
     new Date(`${today}T00:00:00Z`).getTime();
   return Math.round(diff / MS_PER_DAY);
+}
+
+// Fecha de hoy (YYYY-MM-DD) en el calendario de Bogotá.
+export function getTodayDate(now = new Date()): string {
+  return isoDateFormatter.format(now);
+}
+
+// Suma días de calendario a una fecha YYYY-MM-DD (sin depender de la zona
+// horaria del servidor: se opera en UTC sobre la fecha pura).
+export function addDaysToDate(date: string, days: number): string {
+  const result = new Date(`${date}T00:00:00Z`);
+  result.setUTCDate(result.getUTCDate() + days);
+  return result.toISOString().slice(0, 10);
 }
 
 // "20 oct 2026" para mostrar en tablas.

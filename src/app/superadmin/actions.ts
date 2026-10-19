@@ -6,7 +6,13 @@ import { redirect } from "next/navigation";
 import { getSuperAdminActionContext, IMPERSONATE_COOKIE } from "@/lib/auth";
 import { DEFAULT_STORE_FONT } from "@/lib/font-names";
 import { validateSlug } from "@/lib/slug";
-import { isValidDateString, toSubscriptionEnd } from "@/lib/store-utils";
+import {
+  addDaysToDate,
+  getSubscriptionEndDate,
+  getTodayDate,
+  isValidDateString,
+  toSubscriptionEnd,
+} from "@/lib/store-utils";
 import { normalizeWhatsApp } from "@/lib/whatsapp";
 import { TICKET_STATUSES, type TicketStatus } from "@/types";
 
@@ -140,6 +146,72 @@ export async function updateSubscriptionDate(
   revalidatePath("/admin");
   revalidatePath(`/${storeId}`);
   return { error: null };
+}
+
+export interface ExtendSubscriptionResult extends ActionResult {
+  // Nueva fecha de corte (YYYY-MM-DD, Bogotá) si la renovación se aplicó.
+  newEndDate?: string;
+  // true si la tienda estaba suspendida manualmente y quedó activa.
+  reactivated?: boolean;
+}
+
+const MAX_DAYS_TO_ADD = 366;
+
+// Renovación rápida (pago recibido): suma daysToAdd al vencimiento.
+// - Vigente (vence hoy o después): se suma a la fecha de vencimiento actual,
+//   así no se pierden los días que quedaban (2 días + 31 = 33).
+// - Vencida o sin fecha (null): se suma desde hoy (calendario de Bogotá).
+// Renovar equivale a pagar, así que además deja la tienda activa
+// (is_active = true) aunque estuviera suspendida manualmente.
+export async function extendSubscription(
+  storeId: string,
+  daysToAdd: number = 31,
+): Promise<ExtendSubscriptionResult> {
+  const ctx = await getSuperAdminActionContext();
+  if ("error" in ctx) return { error: ctx.error ?? null };
+
+  if (!Number.isInteger(daysToAdd) || daysToAdd < 1 || daysToAdd > MAX_DAYS_TO_ADD) {
+    return { error: `Los días a sumar deben estar entre 1 y ${MAX_DAYS_TO_ADD}.` };
+  }
+
+  const { data: store, error: readError } = await ctx.admin
+    .from("stores")
+    .select("id, is_active, subscription_end")
+    .eq("id", storeId)
+    .maybeSingle<{ id: string; is_active: boolean; subscription_end: string | null }>();
+
+  if (readError || !store) return { error: "No se encontró la tienda." };
+
+  const today = getTodayDate();
+  const currentEnd = getSubscriptionEndDate(store);
+  // Las fechas YYYY-MM-DD se comparan bien como texto.
+  const base = currentEnd && currentEnd >= today ? currentEnd : today;
+  const newEndDate = addDaysToDate(base, daysToAdd);
+
+  // Escritura condicional: solo si el vencimiento sigue siendo el que se
+  // leyó. Así un doble clic (o dos pestañas) no suma los días dos veces.
+  let update = ctx.admin
+    .from("stores")
+    .update({ subscription_end: toSubscriptionEnd(newEndDate), is_active: true })
+    .eq("id", storeId);
+  update =
+    store.subscription_end === null
+      ? update.is("subscription_end", null)
+      : update.eq("subscription_end", store.subscription_end);
+
+  const { data, error } = await update.select("id");
+
+  if (error) return { error: "No se pudo renovar la suscripción." };
+  if (!data?.length) {
+    return {
+      error: "El vencimiento cambió mientras tanto (¿doble clic?). Revisa la fecha antes de renovar de nuevo.",
+    };
+  }
+
+  revalidatePath("/superadmin");
+  revalidatePath("/admin");
+  revalidatePath(`/${storeId}`);
+  return { error: null, newEndDate, reactivated: store.is_active === false };
 }
 
 export async function startImpersonation(storeId: string) {

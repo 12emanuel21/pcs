@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LifeBuoy, Store } from "lucide-react";
+import { BarChart3, LifeBuoy, Store } from "lucide-react";
 
 const TABS = [
   { href: "/superadmin", label: "Tiendas y Clientes", icon: Store },
+  { href: "/superadmin/metrics", label: "Métricas y Ventas", icon: BarChart3 },
   { href: "/superadmin/tickets", label: "Tickets de Soporte", icon: LifeBuoy },
 ] as const;
 
