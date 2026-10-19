@@ -524,3 +524,48 @@ ese trabajo).
 ### Riesgos
 - Si en Safari la hoja sigue sin verse, el siguiente paso es inspeccionarla
   con Web Inspector (Mac + iPhone por cable) para ver su posición y capa.
+
+## 2026-10-18 · Errores de hidratación en la vitrina (código viejo en caché)
+
+Rama `fix/vitrina-hoja-movil-y-admin-metricas`.
+
+### Qué se reportó
+- `Hydration failed`: en el servidor, tras `ProductDetailSheet` venía el
+  `<footer>`; en el cliente, el fondo `<div aria-hidden className="fixed
+  inset-0 z-50 bg-black/40 …">` de la hoja.
+- `Encountered a script tag while rendering React component` (next-themes).
+- Ambos en el log de desarrollo a los 5–6 s de arrancar el servidor.
+
+### Diagnóstico
+- **El código actual no puede producir ese HTML en el cliente.** Ese fondo
+  (`z-50 bg-black/40`, siempre montado) era el de la hoja de la fase 2B
+  (`0e9d8d7`). Desde `65e8951` la hoja hace `if (!product) return null` y su
+  fondo es `bg-black/50` dentro de un contenedor `z-[60]`. Servidor nuevo
+  (sin hoja) + cliente viejo (con fondo) = el desajuste reportado.
+- **Canal: la caché de Cloudflare**, igual que el error de "name". El chunk
+  de la hoja (`src_…_.js`) sigue llegando por `test-n8n.autobotsdev.dev`
+  con `Cache-Control: max-age=14400` (el origen manda `no-cache`) y con la
+  misma URL aunque cambie su código. La regla de Cloudflare recomendada
+  antes no está aplicada.
+- **El aviso del `<script>` es una consecuencia:** al fallar la hidratación,
+  React vuelve a renderizar el árbol en el cliente, y el `ThemeProvider` de
+  next-themes renderiza su `<script>` en el cliente. No lo evita
+  `suppressHydrationWarning` (que ya estaba en `<html>`, `app/layout.tsx`, y
+  solo cubre el atributo `class` que next-themes cambia antes de hidratar).
+- **Verificado:** carga limpia en Chromium (perfil Pixel 7), por localhost y
+  por el dominio público: sin errores ni avisos de consola y sin el fondo
+  viejo en el DOM.
+
+### Qué se hizo
+- Ningún cambio de código: lo pedido ya estaba (`suppressHydrationWarning`
+  en `<html>`; la hoja devuelve `null` sin producto en servidor y cliente,
+  sin `typeof window`, portal ni estado de montaje). Un `isMounted` no
+  cambiaría nada porque no hay nada que renderizar solo en el cliente.
+- `tsc`, `eslint` y `next build` con código 0.
+
+### Pendiente (fuera del repo)
+- Regla de caché en Cloudflare para `test-n8n.autobotsdev.dev`: "Bypass
+  cache" y "Browser TTL: respetar las cabeceras del origen". Sin ella, cada
+  cambio de componentes cliente probado por el dominio puede repetir errores
+  de este tipo durante hasta 4 horas. Mientras tanto: Ctrl+Shift+R o ventana
+  privada tras cada cambio, y en el celular borrar los datos del sitio.
