@@ -327,6 +327,9 @@ Rama `feat/vitrina-fase-2a`.
 
 ## 2026-10-18 · Vitrina, fase 2B: rediseño visible
 
+**Estado: CERRADO** a pedido del usuario y fusionada en `main`. Lo que
+figura en "Sin probar" no se confirmó desde esta sesión.
+
 Rama `feat/vitrina-fase-2b` (sale de `main` con la 2A fusionada).
 
 ### Idea de diseño
