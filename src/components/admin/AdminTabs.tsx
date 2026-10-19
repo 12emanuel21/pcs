@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LifeBuoy, Package, ReceiptText, Settings, Users } from "lucide-react";
+import { BarChart3, LifeBuoy, Package, ReceiptText, Settings, Users } from "lucide-react";
 
 // ownerOnly: ocultas para empleados (STAFF). Las páginas y acciones también
 // lo validan en el servidor; ocultarlas es solo para no mostrar callejones.
 const TABS = [
   { href: "/admin", label: "Productos", icon: Package, ownerOnly: false },
+  { href: "/admin/metrics", label: "Métricas", icon: BarChart3, ownerOnly: false },
   { href: "/admin/orders", label: "Pedidos", icon: ReceiptText, ownerOnly: false },
   { href: "/admin/settings", label: "Ajustes", icon: Settings, ownerOnly: true },
   { href: "/admin/staff", label: "Empleados", icon: Users, ownerOnly: true },

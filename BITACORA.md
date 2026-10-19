@@ -457,3 +457,70 @@ fusionada).
   por consulta (igual que antes).
 - El total global del `<tfoot>` incluye pedidos de tiendas que ya no
   existan; en ese caso no sería igual a la suma de las filas.
+
+## 2026-10-18 · Hoja de detalle en celular y métricas del comerciante
+
+Rama `fix/vitrina-hoja-movil-y-admin-metricas` (sale de
+`feat/superadmin-renovacion-y-metricas`, que aún no está en `main`: incluye
+ese trabajo).
+
+### Bug: en celular el fondo se oscurece pero la hoja no aparece
+- **Reproducción:** no se logró. En Chromium la hoja entra y queda en
+  pantalla con toque real en Pixel 7, "iPhone 13" vertical y horizontal y
+  Galaxy S9+ (320px); los perfiles "iPhone" de Playwright usan Chromium, no
+  WebKit. WebKit no se pudo instalar sin `sudo` (pide ICU 74, libvpx 9, etc.
+  que este Ubuntu no trae). El CSS compilado está bien formado
+  (`translate-y-full`/`translate-y-0`, respaldo de `@property` para Safari
+  antiguo, `92dvh`).
+- **Diagnóstico (por análisis, no confirmado en Safari):** la hoja dependía
+  de varias piezas que fallan en WebKit y no en Chromium:
+  1. Fondo y hoja con el mismo `z-index: 50`, separados; la hoja quedaba
+     encima solo por el orden en el DOM. Con el fondo con `backdrop-filter`,
+     Safari lo pinta en su propia capa y el orden entre hermanos con igual
+     `z-index` no está garantizado.
+  2. Posición por la propiedad CSS `translate` (Tailwind v4) con transición
+     entre estados, sobre un elemento siempre montado: si la transición no se
+     completa, la hoja queda en `translate-y-full`, fuera de pantalla.
+  3. Zona con scroll con `flex-1` (base 0%) en una columna con altura
+     automática y `max-height`: Safari puede colapsarla a altura 0.
+- **Arreglo** (`ProductDetailSheet.tsx` reescrito):
+  - Solo se monta abierta. La posición la da el layout: un contenedor
+    `fixed inset-0 z-[60]` con flex que alinea la hoja abajo (celular) o al
+    centro (`sm`); el fondo es un hijo y la hoja va después con `z-10`
+    propio.
+  - Entrada con `@keyframes` y `transform` clásico, sin
+    `animation-fill-mode`: si la animación no corre, la hoja igual queda
+    visible (`animate-sheet-in` / `animate-fade-in` en `globals.css`,
+    desactivadas con movimiento reducido).
+  - Sin `backdrop-filter`, sin arrastre del tirador (se quitó), sin
+    transform en línea.
+  - `max-height: 90vh`, con `90dvh` solo donde `@supports (height: 100dvh)`.
+  - Zona con scroll `flex-auto min-h-0`; pie con `shrink-0`.
+  - Se pierde la animación de salida (se desmonta al cerrar).
+
+### Métricas del comerciante en su propia pestaña
+- Nueva `/admin/metrics`: "Resumen de Actividad" (pedidos generados,
+  volumen de intención) y `SalesChart` de 7 días, movidos tal cual desde
+  `/admin`. Mismo acceso que antes (`getCurrentStore`: dueño y empleados);
+  `proxy.ts` ya cubre `/admin/:path*` (sin sesión responde 307 al login).
+- `/admin` empieza directo en "Productos" (ahora el `h1`) con "Importar
+  Excel/CSV" y "Nuevo Producto". Se quitó el título "Panel de
+  Administración - {tienda}".
+- Pestaña "Métricas" en `AdminTabs`, justo después de Productos.
+- `NoStoreNotice.tsx`: el aviso "Aún no tienes una tienda asignada", ahora
+  compartido por las dos páginas.
+
+### Verificado
+- `tsc`, `eslint` y `next build` con código 0.
+- Hoja nueva en Chromium con toque real en los cuatro perfiles: entra con
+  la animación y termina en pantalla; en horizontal se centra y hace scroll
+  interno.
+
+### Sin probar
+- **El arreglo en un iPhone real** (el diagnóstico no se pudo confirmar).
+- `/admin` y `/admin/metrics` con sesión (no hay sesión de comerciante en
+  esta sesión).
+
+### Riesgos
+- Si en Safari la hoja sigue sin verse, el siguiente paso es inspeccionarla
+  con Web Inspector (Mac + iPhone por cable) para ver su posición y capa.
