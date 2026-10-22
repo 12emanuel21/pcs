@@ -48,7 +48,10 @@ body {
   --brand-current-ink: color-mix(in oklab, var(--brand-current) 70%, #18181b);
 }
 
-.dark .brand-scope {
+/* También cuando .dark está DENTRO de la vitrina (plantilla gamer: fuerza
+   el oscuro en su contenedor aunque <html> esté en claro). */
+.dark .brand-scope,
+.brand-scope .dark {
   --brand-current: var(--brand-dark);
   --brand-current-fg: var(--brand-dark-fg);
   --brand-current-ink: color-mix(in oklab, var(--brand-current) 70%, #ffffff);

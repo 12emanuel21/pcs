@@ -623,3 +623,70 @@ incluye ese trabajo y el del SuperAdmin).
   comerciante podría pensar que no se guardó.
 - Las imágenes de portada van al mismo bucket que productos y logo, con
   prefijo `hero-`.
+
+## 2026-10-21 · Plantilla "gamer" de la vitrina
+
+Rama `feat/templates-y-hero`.
+
+### Qué se hizo
+- **`templates/GamerTheme.tsx`:** tienda de hardware, siempre oscura
+  (`dark` + `bg-zinc-950` + `color-scheme: dark` en su contenedor, aunque el
+  comprador o `default_theme` estén en claro).
+  - Portada: imagen de portada con `bg-cover bg-center` sobre un degradado
+    radial del color de marca (si la imagen no carga queda el degradado);
+    con imagen, velo `from-zinc-950 via-black/60 to-black/40`; sin imagen,
+    solo el fundido inferior. `min-h-[300px]`, `sm:min-h-[40vh]`. Centro:
+    logo, nombre de la tienda (si hay título de portada), título
+    `text-4xl md:text-6xl font-black uppercase` en color de marca (sin
+    título de portada, el nombre de la tienda) y subtítulo `text-zinc-300`.
+  - Buscador y categorías oscuros (`bg-zinc-900`, `border-zinc-800`,
+    esquinas `rounded-md`); categoría activa en color de marca.
+  - Grilla igual a la minimalista (2 / 3 / 4 columnas, última fila
+    centrada) con `GamerProductCard`; hoja de detalle, pie y carrito dentro
+    del contenedor oscuro.
+- **`templates/GamerProductCard.tsx`:** `bg-zinc-900`, borde `zinc-800`,
+  `rounded-lg`; al pasar el cursor, borde y brillo del color de marca
+  (`shadow-[0_0_18px_…] shadow-brand/35`); foto sobre `bg-black/50` sin
+  `mix-blend-multiply`; precio en color de marca; control de carrito con
+  contorno (`AddToCartControl tone="outline"`).
+- **Enrutador:** `StorefrontTemplate` ahora arma la página completa por
+  plantilla (cabecera, catálogo, pie y carrito): `gamer` → `GamerTheme`;
+  `minimal` y `grid` → `StoreHeader` (encabezado extraído de `page.tsx`) +
+  `Storefront` + pie + carrito. `page.tsx` solo elige el fondo del
+  contenedor (oscuro para gamer, para que no asome blanco).
+- **Compartido:** `useCatalogFilters` (búsqueda, categorías, orden de
+  agotados, texto de "sin resultados") y `CARD_WIDTH_CLASS`, usados por
+  ambas plantillas. `ProductImage` acepta `blend={false}`; `AddToCartControl`
+  y `ProductDetailSheet` aceptan `tone="outline"`.
+- **Paleta de marca oscura dentro de la vitrina:** nueva regla
+  `.brand-scope .dark` (además de `.dark .brand-scope`) para que un
+  contenedor `.dark` interno use `--brand-dark`.
+
+### Verificado
+- `tsc`, `eslint` y `next build` con código 0. En el CSS compilado:
+  `.brand-scope .dark` y el brillo al 35 % con `color-mix`.
+- Capturas en Chromium (Pixel 7 con el sistema en claro, y 1280px), con la
+  plantilla y una portada forzadas temporalmente en el servidor (parche
+  quitado antes del commit): portada con imagen y sin ella, grilla, "− 2 +"
+  con contorno, detalle, carrito en color de marca y brillo al pasar el
+  cursor; sin errores de consola. En
+  `/home/evargas/dev/app_local_store/capturas/plantilla-gamer/` (fuera del
+  repo).
+- **Ojo:** el parche temporal corrió en el servidor del usuario (5678, ya
+  levantado sobre este árbol) durante las capturas, unos segundos; si el
+  dominio público estaba expuesto, alguien pudo ver la tienda en "gamer".
+
+### Sin probar
+- Elegir "Gamer" desde Ajustes y verlo en la tienda real (requiere sesión).
+- El fundido de la portada sin imagen después del último ajuste (no se
+  volvió a capturar para no exponer otro parche en el servidor público).
+- Celular real y Safari.
+
+### Riesgos
+- Fotos con fondo blanco (la mayoría en la tienda demo) se ven como
+  recuadros blancos sobre la tarjeta oscura: la plantilla está pensada para
+  fotos con fondo removido.
+- Colores de marca muy oscuros: se aclaran con `--brand-dark` (calculado
+  contra `slate-900`), pero el título y el precio pueden verse apagados
+  sobre `zinc-950`.
+- La plantilla "grid" sigue usando la minimalista.

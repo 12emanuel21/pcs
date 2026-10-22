@@ -1,69 +1,40 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { PackageSearch, Search, X } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import ProductDetailSheet from "@/components/store/ProductDetailSheet";
-import { categoryKey, uniqueCategories } from "@/lib/categories";
+import {
+  ALL_CATEGORIES as ALL,
+  CARD_WIDTH_CLASS,
+  useCatalogFilters,
+} from "@/components/store/useCatalogFilters";
 import type { StoreHero } from "@/lib/templates";
 import type { Product } from "@/types";
 
-const ALL = "Todos";
-
 interface StorefrontProps {
-  // Portada de la tienda (null = sin portada). Se recibe ya para la
-  // plantilla; todavía no se muestra.
+  // Portada de la tienda (null = sin portada). La plantilla minimalista
+  // todavía no la muestra.
   hero: StoreHero | null;
   initialProducts: Product[];
 }
 
-// Normaliza para buscar sin importar tildes ni mayúsculas ("cafe" = "Café").
-function normalize(text: string): string {
-  return text
-    .normalize("NFD")
-    .replace(/[\u0300-\u036F]/g, "")
-    .toLowerCase();
-}
-
+// Catálogo de la plantilla minimalista: buscador, categorías y grilla.
 export default function Storefront({ initialProducts }: StorefrontProps) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState(ALL);
+  const {
+    searchTerm,
+    setSearchTerm,
+    selectedCategory,
+    setSelectedCategory,
+    categories,
+    filteredProducts,
+    hasFilters,
+    clearFilters,
+    noResultsDescription,
+  } = useCatalogFilters(initialProducts);
   // Producto abierto en la hoja de detalle (null = cerrada).
   const [detailProduct, setDetailProduct] = useState<Product | null>(null);
   const closeDetail = useCallback(() => setDetailProduct(null), []);
-
-  const categories = useMemo(
-    () => uniqueCategories(initialProducts),
-    [initialProducts],
-  );
-
-  const filteredProducts = useMemo(() => {
-    const terms = normalize(searchTerm).split(/\s+/).filter(Boolean);
-    const selectedKey = selectedCategory === ALL ? null : categoryKey(selectedCategory);
-
-    const matches = initialProducts.filter((product) => {
-      if (selectedKey && categoryKey(product.category ?? "") !== selectedKey) {
-        return false;
-      }
-      if (terms.length === 0) return true;
-      const haystack = normalize(
-        `${product.name} ${product.description ?? ""} ${product.category ?? ""}`,
-      );
-      return terms.every((term) => haystack.includes(term));
-    });
-
-    // Agotados al final, sin alterar el orden del resto (sort es estable).
-    return matches.sort(
-      (a, b) => Number(a.stock === 0) - Number(b.stock === 0),
-    );
-  }, [initialProducts, searchTerm, selectedCategory]);
-
-  const hasFilters = searchTerm.trim() !== "" || selectedCategory !== ALL;
-
-  const clearFilters = () => {
-    setSearchTerm("");
-    setSelectedCategory(ALL);
-  };
 
   if (initialProducts.length === 0) {
     return <EmptyState title="Esta tienda aún no tiene productos disponibles." />;
@@ -138,13 +109,7 @@ export default function Storefront({ initialProducts }: StorefrontProps) {
         {filteredProducts.length === 0 ? (
           <EmptyState
             title="No se encontraron productos"
-            description={
-              searchTerm.trim()
-                ? `No hay resultados para "${searchTerm.trim()}"${
-                    selectedCategory !== ALL ? ` en ${selectedCategory}` : ""
-                  }.`
-                : `No hay productos en ${selectedCategory}.`
-            }
+            description={noResultsDescription}
             action={
               hasFilters ? (
                 <button
@@ -177,10 +142,7 @@ export default function Storefront({ initialProducts }: StorefrontProps) {
                 filas respiren sin marcos alrededor de cada tarjeta. */}
             <div className="flex flex-wrap gap-x-3 gap-y-8 sm:gap-x-5 sm:gap-y-10 md:justify-center">
               {filteredProducts.map((product) => (
-                <div
-                  key={product.id}
-                  className="w-[calc((100%-0.75rem)/2)] sm:w-[calc((100%-1.25rem)/2)] md:w-[calc((100%-2.5rem)/3)] lg:w-[calc((100%-3.75rem)/4)]"
-                >
+                <div key={product.id} className={CARD_WIDTH_CLASS}>
                   <ProductCard product={product} onOpenDetail={setDetailProduct} />
                 </div>
               ))}

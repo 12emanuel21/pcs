@@ -52,6 +52,9 @@ interface AddToCartControlProps {
   product: Product;
   // "card": tarjeta del catálogo (44px); "sheet": hoja de detalle (52px).
   size?: "card" | "sheet";
+  // "solid": píldora del color de marca (minimalista). "outline": fondo
+  // oscuro con borde y texto de marca, esquinas rectas (gamer).
+  tone?: "solid" | "outline";
   className?: string;
 }
 
@@ -60,17 +63,24 @@ interface AddToCartControlProps {
 export default function AddToCartControl({
   product,
   size = "card",
+  tone = "solid",
   className = "",
 }: AddToCartControlProps) {
   const { inCart, isSoldOut, atLimit, add, decrease } = useProductCart(product);
   const isSheet = size === "sheet";
+  const isOutline = tone === "outline";
   const height = isSheet ? "min-h-13" : "min-h-11";
-  const stepperButton = `flex ${isSheet ? "h-13 w-14" : "h-11 w-11"} items-center justify-center rounded-full transition-all duration-200 hover:bg-brand/10 active:scale-90 disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent disabled:active:scale-100`;
+  const radius = isOutline ? "rounded-md" : "rounded-full";
+  const stepperButton = `flex ${isSheet ? "h-13 w-14" : "h-11 w-11"} items-center justify-center ${radius} transition-all duration-200 hover:bg-brand/10 active:scale-90 disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent disabled:active:scale-100`;
 
   if (inCart > 0 && !isSoldOut) {
     return (
       <div
-        className={`flex ${height} items-center justify-between rounded-full bg-brand/12 text-brand-ink ${className}`}
+        className={`flex ${height} items-center justify-between ${
+          isOutline
+            ? "rounded-md border border-brand/70 bg-zinc-950 text-brand"
+            : "rounded-full bg-brand/12 text-brand-ink"
+        } ${className}`}
       >
         <button
           type="button"
@@ -109,7 +119,11 @@ export default function AddToCartControl({
       type="button"
       onClick={add}
       disabled={isSoldOut}
-      className={`flex ${height} w-full items-center justify-center gap-1.5 rounded-full bg-brand px-4 ${isSheet ? "text-base" : "text-sm"} font-semibold text-brand-fg transition-all duration-200 hover:brightness-110 active:scale-[0.97] disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-zinc-500 disabled:hover:brightness-100 disabled:active:scale-100 dark:disabled:bg-zinc-900 dark:disabled:text-zinc-400 ${className}`}
+      className={`flex ${height} w-full items-center justify-center gap-1.5 px-4 ${isSheet ? "text-base" : "text-sm"} font-semibold transition-all duration-200 active:scale-[0.97] disabled:cursor-not-allowed disabled:hover:brightness-100 disabled:active:scale-100 ${
+        isOutline
+          ? "rounded-md border border-brand bg-zinc-950 text-brand hover:bg-brand hover:text-brand-fg disabled:border-zinc-800 disabled:bg-zinc-900 disabled:text-zinc-500 disabled:hover:bg-zinc-900 disabled:hover:text-zinc-500"
+          : "rounded-full bg-brand text-brand-fg hover:brightness-110 disabled:bg-zinc-100 disabled:text-zinc-500 dark:disabled:bg-zinc-900 dark:disabled:text-zinc-400"
+      } ${className}`}
     >
       {isSoldOut ? (
         "Agotado"

@@ -11,6 +11,8 @@ interface ProductDetailSheetProps {
   // Producto abierto; null = cerrada.
   product: Product | null;
   onClose: () => void;
+  // Estilo del control de carrito (ver AddToCartControl).
+  tone?: "solid" | "outline";
 }
 
 // Detalle de un producto: pegado abajo en celular (hoja) y centrado desde sm.
@@ -27,12 +29,20 @@ interface ProductDetailSheetProps {
 // - Altura máxima en vh con dvh solo donde se soporta, y la zona con scroll
 //   usa flex-auto + min-h-0 (no flex-1 con base 0%, que Safari puede
 //   colapsar a altura 0 en columnas con altura automática).
-export default function ProductDetailSheet({ product, onClose }: ProductDetailSheetProps) {
+export default function ProductDetailSheet({ product, onClose, tone }: ProductDetailSheetProps) {
   if (!product) return null;
-  return <OpenSheet product={product} onClose={onClose} />;
+  return <OpenSheet product={product} onClose={onClose} tone={tone} />;
 }
 
-function OpenSheet({ product, onClose }: { product: Product; onClose: () => void }) {
+function OpenSheet({
+  product,
+  onClose,
+  tone,
+}: {
+  product: Product;
+  onClose: () => void;
+  tone?: "solid" | "outline";
+}) {
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const { isSoldOut, stockNote } = useProductCart(product);
 
@@ -108,7 +118,7 @@ function OpenSheet({ product, onClose }: { product: Product; onClose: () => void
         </div>
 
         <div className="shrink-0 border-t border-zinc-100 px-5 pt-3 pb-[max(1rem,env(safe-area-inset-bottom))] dark:border-zinc-800">
-          <AddToCartControl product={product} size="sheet" />
+          <AddToCartControl product={product} size="sheet" tone={tone} />
         </div>
       </div>
     </div>

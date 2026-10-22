@@ -8,6 +8,9 @@ interface ProductImageProps {
   size?: "card" | "detail" | "thumb";
   // Se aplica a la foto y al recuadro de respaldo (ej. gris si está agotado).
   className?: string;
+  // Fundir la foto con la vitrina clara (multiply). false sobre fondos
+  // oscuros (plantilla gamer), donde multiply dejaría la foto negra.
+  blend?: boolean;
 }
 
 // Primera letra visible del nombre (respeta tildes y emojis).
@@ -31,6 +34,7 @@ export default function ProductImage({
   name,
   size = "card",
   className = "",
+  blend = true,
 }: ProductImageProps) {
   const fallback = (
     <div
@@ -48,7 +52,7 @@ export default function ProductImage({
       src={src}
       alt={size === "thumb" ? "" : name}
       fallback={fallback}
-      className={`h-full w-full object-contain mix-blend-multiply ${PADDING[size]} ${className}`}
+      className={`h-full w-full object-contain ${blend ? "mix-blend-multiply" : ""} ${PADDING[size]} ${className}`}
     />
   );
 }

@@ -2,14 +2,11 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { connection } from "next/server";
-import Cart from "@/components/Cart";
 import StatusScreen from "@/components/store/StatusScreen";
-import StoreFooter from "@/components/store/StoreFooter";
 import StoreLogo from "@/components/store/StoreLogo";
 import StorefrontTemplate from "@/components/store/StorefrontTemplate";
 import StorefrontSkeleton from "@/components/store/StorefrontSkeleton";
 import StoreThemeScope, { SystemThemeScope } from "@/components/store/StoreThemeScope";
-import ThemeToggle from "@/components/ThemeToggle";
 import { brandStyle } from "@/lib/brand-colors";
 import { storeFontClassName } from "@/lib/fonts";
 import { getPublicStore } from "@/lib/store-data";
@@ -119,47 +116,30 @@ async function StoreCatalog({ params }: Pick<PageProps<"/[storeId]">, "params">)
 
   if (productsError) throw productsError;
 
+  const template = resolveTemplate(store.template);
+
   return (
     // Tipografía elegida en Ajustes + paleta de marca + tema de la tienda
-    // (default_theme o la elección del comprador) para toda la vitrina,
-    // incluido el carrito flotante.
+    // (default_theme o la elección del comprador) para toda la vitrina. La
+    // plantilla arma el resto (cabecera, catálogo, pie y carrito); la gamer
+    // fuerza el oscuro en su propio contenedor, así que el fondo de aquí
+    // también es oscuro para que no asome blanco al estirar la página.
     <StoreThemeScope
       storeId={store.id}
       defaultTheme={store.default_theme}
       style={brandStyle(store.theme_color)}
-      className={`brand-scope min-h-full flex-1 bg-white text-zinc-900 antialiased dark:bg-black dark:text-zinc-100 dark:[color-scheme:dark] ${storeFontClassName(store.font_family)}`}
+      className={`brand-scope min-h-full flex-1 antialiased ${
+        template === "gamer"
+          ? "bg-zinc-950 text-zinc-100"
+          : "bg-white text-zinc-900 dark:bg-black dark:text-zinc-100 dark:[color-scheme:dark]"
+      } ${storeFontClassName(store.font_family)}`}
     >
-      {/* Encabezado compacto en el color de la tienda: logo, nombre completo
-          (hasta 2 líneas, con tamaño que se adapta al ancho) y tema. */}
-      <header className="bg-brand text-brand-fg">
-        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3.5 sm:gap-4 sm:px-6 sm:py-5">
-          {store.logo_url && (
-            <StoreLogo
-              name={store.name}
-              logoUrl={store.logo_url}
-              // Sobre el encabezado (ya del color de marca), la inicial va en
-              // un recuadro translúcido.
-              fallbackClassName="bg-white/20 text-brand-fg"
-              className="h-11 w-11 shrink-0 rounded-xl text-xl ring-1 ring-white/30 sm:h-14 sm:w-14 sm:rounded-2xl"
-            />
-          )}
-          <h1 className="line-clamp-2 min-w-0 flex-1 text-[clamp(1.125rem,5.2vw,1.875rem)] leading-tight font-semibold tracking-tight text-balance">
-            {store.name}
-          </h1>
-          <ThemeToggle className="-mr-2 bg-black/10 hover:bg-black/20" />
-        </div>
-      </header>
-
-      {/* Catálogo según la plantilla de la tienda (minimal / gamer / grid). */}
       <StorefrontTemplate
-        template={resolveTemplate(store.template)}
+        template={template}
+        store={store}
         hero={getStoreHero(store)}
         initialProducts={products}
       />
-
-      <StoreFooter store={store} />
-
-      <Cart store={store} />
     </StoreThemeScope>
   );
 }

@@ -1,25 +1,41 @@
+import Cart from "@/components/Cart";
+import StoreFooter from "@/components/store/StoreFooter";
+import StoreHeader from "@/components/store/StoreHeader";
 import Storefront from "@/components/store/Storefront";
+import GamerTheme from "@/components/store/templates/GamerTheme";
 import type { StoreHero, StoreTemplate } from "@/lib/templates";
-import type { Product } from "@/types";
+import type { Product, Store } from "@/types";
 
 interface StorefrontTemplateProps {
   template: StoreTemplate;
+  store: Store;
   hero: StoreHero | null;
   initialProducts: Product[];
 }
 
-// Enrutador de plantillas de la vitrina: elige el catálogo según
-// stores.template. "gamer" y "grid" todavía no tienen componente propio y
-// usan el minimalista mientras tanto.
+// Enrutador de plantillas de la vitrina: cada plantilla arma la página
+// completa (cabecera, catálogo, pie y carrito), porque cambian también la
+// cabecera y el tema (la gamer es siempre oscura). "grid" todavía no tiene
+// componente propio y usa la minimalista.
 export default function StorefrontTemplate({
   template,
+  store,
   hero,
   initialProducts,
 }: StorefrontTemplateProps) {
   switch (template) {
     case "gamer":
+      return <GamerTheme store={store} hero={hero} initialProducts={initialProducts} />;
     case "grid":
     case "minimal":
-      return <Storefront hero={hero} initialProducts={initialProducts} />;
+      return (
+        <>
+          <StoreHeader store={store} />
+          {/* Buscador, categorías y grilla filtrable (Client Component). */}
+          <Storefront hero={hero} initialProducts={initialProducts} />
+          <StoreFooter store={store} />
+          <Cart store={store} />
+        </>
+      );
   }
 }
