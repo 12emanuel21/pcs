@@ -50,8 +50,10 @@ export function useProductCart(product: Product) {
 
 interface AddToCartControlProps {
   product: Product;
-  // "card": tarjeta del catálogo (44px); "sheet": hoja de detalle (52px).
-  size?: "card" | "sheet";
+  // "card": tarjeta del catálogo (44px); "sheet": hoja de detalle (52px);
+  // "compact": catálogo denso (32px visibles, con el área táctil ampliada
+  // hacia arriba y abajo hasta 44px).
+  size?: "card" | "sheet" | "compact";
   // "solid": píldora del color de marca (minimalista). "outline": fondo
   // oscuro con borde y texto de marca, esquinas rectas (gamer).
   tone?: "solid" | "outline";
@@ -68,10 +70,15 @@ export default function AddToCartControl({
 }: AddToCartControlProps) {
   const { inCart, isSoldOut, atLimit, add, decrease } = useProductCart(product);
   const isSheet = size === "sheet";
+  const isCompact = size === "compact";
   const isOutline = tone === "outline";
-  const height = isSheet ? "min-h-13" : "min-h-11";
-  const radius = isOutline ? "rounded-md" : "rounded-full";
-  const stepperButton = `flex ${isSheet ? "h-13 w-14" : "h-11 w-11"} items-center justify-center ${radius} transition-all duration-200 hover:bg-brand/10 active:scale-90 disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent disabled:active:scale-100`;
+  const height = isSheet ? "min-h-13" : isCompact ? "h-8" : "min-h-11";
+  const radius = isOutline || isCompact ? "rounded-md" : "rounded-full";
+  // Área táctil invisible de 6px arriba y abajo: 32 + 12 = 44px.
+  const compactHitArea = "relative before:absolute before:inset-x-0 before:-inset-y-1.5";
+  const stepperSize = isSheet ? "h-13 w-14" : isCompact ? `h-8 flex-1 ${compactHitArea}` : "h-11 w-11";
+  const iconSize = isSheet ? 20 : isCompact ? 15 : 18;
+  const stepperButton = `flex ${stepperSize} items-center justify-center ${radius} transition-all duration-200 hover:bg-brand/10 active:scale-90 disabled:cursor-not-allowed disabled:opacity-35 disabled:hover:bg-transparent disabled:active:scale-100`;
 
   if (inCart > 0 && !isSoldOut) {
     return (
@@ -79,7 +86,7 @@ export default function AddToCartControl({
         className={`flex ${height} items-center justify-between ${
           isOutline
             ? "rounded-md border border-brand/70 bg-zinc-950 text-brand"
-            : "rounded-full bg-brand/12 text-brand-ink"
+            : `${radius} bg-brand/12 text-brand-ink`
         } ${className}`}
       >
         <button
@@ -92,10 +99,10 @@ export default function AddToCartControl({
           }
           className={stepperButton}
         >
-          <Minus size={isSheet ? 20 : 18} strokeWidth={2.5} />
+          <Minus size={iconSize} strokeWidth={2.5} />
         </button>
         <span
-          className={`${isSheet ? "text-lg" : "text-base"} font-semibold tabular-nums`}
+          className={`${isSheet ? "text-lg" : isCompact ? "min-w-6 text-center text-sm" : "text-base"} font-semibold tabular-nums`}
           aria-live="polite"
           aria-label={`${inCart} en el carrito`}
         >
@@ -108,7 +115,7 @@ export default function AddToCartControl({
           aria-label={`Agregar una unidad de ${product.name}`}
           className={stepperButton}
         >
-          <Plus size={isSheet ? 20 : 18} strokeWidth={2.5} />
+          <Plus size={iconSize} strokeWidth={2.5} />
         </button>
       </div>
     );
@@ -119,17 +126,19 @@ export default function AddToCartControl({
       type="button"
       onClick={add}
       disabled={isSoldOut}
-      className={`flex ${height} w-full items-center justify-center gap-1.5 px-4 ${isSheet ? "text-base" : "text-sm"} font-semibold transition-all duration-200 active:scale-[0.97] disabled:cursor-not-allowed disabled:hover:brightness-100 disabled:active:scale-100 ${
+      className={`flex ${height} w-full items-center justify-center ${
+        isCompact ? `gap-1 px-2 text-[13px] ${compactHitArea}` : `gap-1.5 px-4 ${isSheet ? "text-base" : "text-sm"}`
+      } font-semibold transition-all duration-200 active:scale-[0.97] disabled:cursor-not-allowed disabled:hover:brightness-100 disabled:active:scale-100 ${
         isOutline
           ? "rounded-md border border-brand bg-zinc-950 text-brand hover:bg-brand hover:text-brand-fg disabled:border-zinc-800 disabled:bg-zinc-900 disabled:text-zinc-500 disabled:hover:bg-zinc-900 disabled:hover:text-zinc-500"
-          : "rounded-full bg-brand text-brand-fg hover:brightness-110 disabled:bg-zinc-100 disabled:text-zinc-500 dark:disabled:bg-zinc-900 dark:disabled:text-zinc-400"
+          : `${radius} bg-brand text-brand-fg hover:brightness-110 disabled:bg-zinc-100 disabled:text-zinc-500 dark:disabled:bg-zinc-900 dark:disabled:text-zinc-400`
       } ${className}`}
     >
       {isSoldOut ? (
         "Agotado"
       ) : (
         <>
-          <Plus size={isSheet ? 20 : 18} strokeWidth={2.5} />
+          <Plus size={iconSize} strokeWidth={2.5} />
           {isSheet ? "Agregar al carrito" : "Agregar"}
         </>
       )}

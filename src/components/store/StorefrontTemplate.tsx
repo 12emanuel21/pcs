@@ -3,6 +3,7 @@ import StoreFooter from "@/components/store/StoreFooter";
 import StoreHeader from "@/components/store/StoreHeader";
 import Storefront from "@/components/store/Storefront";
 import GamerTheme from "@/components/store/templates/GamerTheme";
+import GridTheme from "@/components/store/templates/GridTheme";
 import type { StoreHero, StoreTemplate } from "@/lib/templates";
 import type { Product, Store } from "@/types";
 
@@ -15,8 +16,8 @@ interface StorefrontTemplateProps {
 
 // Enrutador de plantillas de la vitrina: cada plantilla arma la página
 // completa (cabecera, catálogo, pie y carrito), porque cambian también la
-// cabecera y el tema (la gamer es siempre oscura). "grid" todavía no tiene
-// componente propio y usa la minimalista.
+// cabecera y el tema (la gamer es siempre oscura; la de catálogo denso tiene
+// su propio encabezado compacto y no usa la portada).
 export default function StorefrontTemplate({
   template,
   store,
@@ -27,6 +28,7 @@ export default function StorefrontTemplate({
     case "gamer":
       return <GamerTheme store={store} hero={hero} initialProducts={initialProducts} />;
     case "grid":
+      return <GridTheme store={store} initialProducts={initialProducts} />;
     case "minimal":
       return (
         <>

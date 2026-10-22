@@ -690,3 +690,54 @@ Rama `feat/templates-y-hero`.
   contra `slate-900`), pero el título y el precio pueden verse apagados
   sobre `zinc-950`.
 - La plantilla "grid" sigue usando la minimalista.
+
+## 2026-10-21 · Plantilla "grid" (Catálogo Denso)
+
+Rama `feat/templates-y-hero`.
+
+### Qué se hizo
+- **`templates/GridTheme.tsx`:** para inventarios grandes; no usa la
+  portada. Sigue el tema claro/oscuro de la tienda y del comprador.
+  - Encabezado de una línea: franja superior de 3px en color de marca, logo
+    de 32px, nombre (truncado) y `ThemeToggle`.
+  - Buscador (36px) y categorías (32px) pegajosos con padding mínimo.
+  - `max-w-[1600px]`, `px-2`; grilla `grid-cols-2 min-[480px]:grid-cols-3
+    md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-3` (CSS grid:
+    aquí la última fila queda a la izquierda, como en un catálogo).
+  - Hoja de detalle (para ver categoría y descripción), pie y carrito
+    incluidos; contenedor `min-h-screen` para que no quede una franja
+    blanca bajo el pie con pocos productos.
+- **`templates/GridProductCard.tsx`:** `rounded-lg`, borde sutil,
+  `bg-white dark:bg-zinc-900`, `p-2`. Foto cuadrada con `ProductImage`
+  tamaño "thumb" (usa `ImageWithFallback` y conserva la inicial de
+  respaldo). Sin categoría ni descripción. Nombre `text-xs sm:text-sm` en
+  hasta 2 líneas (con alto mínimo de 2 líneas para alinear precio y botón en
+  cada fila); precio `font-bold text-sm sm:text-base`; aviso de stock.
+- **`AddToCartControl size="compact"`:** 32px de alto visibles (`h-8`,
+  `rounded-md`, texto 13px) con el área táctil ampliada 6px arriba y abajo
+  (`before:-inset-y-1.5`): 44px efectivos en celular. El selector reparte
+  "−" y "+" a lo ancho.
+- **Enrutador:** `grid` → `GridTheme`. Las tres plantillas ya tienen
+  componente propio.
+
+### Verificado
+- `tsc`, `eslint` y `next build` con código 0.
+- Capturas en Chromium sin errores de consola, con la plantilla forzada
+  **en una copia aparte del repo** (worktree en otro puerto, borrada al
+  terminar; no se tocó el servidor del usuario): 360px claro y oscuro (2
+  columnas, "− 2 +", carrito), 480px (3 columnas), detalle y 1440px (6
+  columnas). Botón compacto: 32px visibles, área táctil −6px/−6px. Pie hasta
+  el borde inferior a 1440px. En
+  `/home/evargas/dev/app_local_store/capturas/plantilla-grid/`.
+
+### Sin probar
+- Elegir "Catálogo (Denso)" desde Ajustes y verlo en la tienda real.
+- Celular real (toques en el botón compacto) y catálogos realmente grandes
+  (cientos de productos: no hay paginación ni carga diferida de la grilla;
+  las imágenes sí son `loading="lazy"`).
+
+### Riesgos
+- Nombres de 12px en celular: dentro del rango acordado en la fase 2B
+  (12–13px), pero en el límite inferior.
+- El área táctil ampliada del botón compacto se superpone 6px con el precio
+  de arriba; un toque justo encima del botón cuenta como "Agregar".
