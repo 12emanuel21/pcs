@@ -2,6 +2,8 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { ArrowLeft, Download, Store as StoreIcon } from "lucide-react";
 import CsvUploader from "@/components/admin/CsvUploader";
+import ImportModes from "@/components/admin/ImportModes";
+import MagicAiUploader from "@/components/admin/MagicAiUploader";
 import PageSkeleton from "@/components/admin/PageSkeleton";
 import { getCurrentStore } from "@/lib/auth";
 import { buildTemplateCsv } from "@/lib/product-import";
@@ -42,29 +44,37 @@ async function ImportContent() {
         Volver a productos
       </Link>
 
-      <div className="mt-3 flex flex-wrap items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">
-            Importar Productos desde Excel/CSV
-          </h1>
-          <p className="mt-1 max-w-xl text-sm text-zinc-500 dark:text-zinc-400">
-            Carga muchos productos a la vez en {store.name}. Desde Excel usa
-            Archivo → Guardar como → CSV. Los productos se crean como nuevos y
-            activos; los existentes no se modifican.
-          </p>
-        </div>
-        <a
-          href={TEMPLATE_HREF}
-          download="plantilla-productos.csv"
-          className="flex items-center gap-2 rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
-        >
-          <Download size={16} />
-          Descargar Plantilla de Ejemplo
-        </a>
-      </div>
+      <h1 className="mt-3 text-2xl font-bold text-zinc-900 dark:text-zinc-100">
+        Importar Productos
+      </h1>
+      <p className="mt-1 max-w-xl text-sm text-zinc-500 dark:text-zinc-400">
+        Carga muchos productos a la vez en {store.name}. Se crean como nuevos
+        y activos; los existentes no se modifican.
+      </p>
 
       <div className="mt-6">
-        <CsvUploader />
+        <ImportModes
+          classic={
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="max-w-md text-sm text-zinc-500 dark:text-zinc-400">
+                  Llena la plantilla en Excel y guárdala como CSV (Archivo →
+                  Guardar como → CSV).
+                </p>
+                <a
+                  href={TEMPLATE_HREF}
+                  download="plantilla-productos.csv"
+                  className="flex items-center gap-2 rounded-lg border border-zinc-300 bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                >
+                  <Download size={16} />
+                  Descargar Plantilla de Ejemplo
+                </a>
+              </div>
+              <CsvUploader />
+            </div>
+          }
+          magic={<MagicAiUploader />}
+        />
       </div>
     </div>
   );

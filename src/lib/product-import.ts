@@ -7,6 +7,9 @@ export const MAX_NAME_LENGTH = 200;
 export const MAX_DESCRIPTION_LENGTH = 1000;
 export const MAX_CATEGORY_LENGTH = 50;
 export const MAX_STOCK = 1_000_000;
+// Texto máximo para la importación con IA (unas 2.000 filas de un Excel
+// típico). Limita el costo por llamada a Gemini y el tiempo de respuesta.
+export const MAX_AI_INPUT_CHARS = 60_000;
 
 export const TEMPLATE_COLUMNS = [
   "name",

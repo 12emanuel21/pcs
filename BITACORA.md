@@ -1002,3 +1002,57 @@ Rama `feat/categorias-circulares` (desde `main`).
 - La paginación es solo visual: la búsqueda y las categorías filtran sobre
   todo el catálogo y luego se pagina el resultado. Todos los productos se
   siguen descargando con la página (no reduce la consulta a Supabase).
+
+## 2026-10-22 · Onboarding Mágico (importación con IA)
+
+Rama `feat/categorias-circulares` (pedido explícito del usuario).
+
+### Qué se hizo
+- Dependencia `@google/genai` (SDK oficial de Gemini).
+- **`src/app/admin/products/ai-actions.ts`** → `extractProductsWithAI(rawText)`:
+  - Mismo permiso que `importProducts` (`getOwnerStore`): sin sesión y
+    tienda no se llama a Gemini (la cuota la paga la plataforma).
+  - Límite de 60.000 caracteres (`MAX_AI_INPUT_CHARS` en
+    `lib/product-import.ts`; un archivo `"use server"` solo puede exportar
+    funciones async).
+  - Modelo `gemini-2.5-flash`, `temperature: 0`, el prompt pedido más una
+    línea que indica ignorar instrucciones dentro del texto, y
+    `responseMimeType: application/json` con `responseSchema` (name,
+    price, category, stock). Igual se limpian cercas ```json antes de
+    `JSON.parse`.
+  - Cada objeto se reduce a esos 4 campos con tipos correctos; máximo
+    `MAX_IMPORT_ROWS` (500). Devuelve `{ error, products }` en vez del
+    arreglo solo, para mostrar errores legibles (sin clave, Gemini caído,
+    respuesta ilegible, sin productos).
+- **`ImportPreview`** (nuevo): la tabla de previsualización salió de
+  `CsvUploader` y la usan las dos importaciones (con columnas de categoría
+  y stock en la de IA). También `ImportedBanner`.
+- **`MagicAiUploader`**: textarea grande o botón "Subir .csv o .txt"
+  (`FileReader`, reintento en Windows-1252 si salen "�"; el contenido se
+  carga en el textarea para revisarlo). "Extraer con IA" → "Gemini está
+  leyendo tu inventario...". El resultado pasa por `validateImportRow`
+  (igual que el CSV) y "Confirmar y Guardar" llama a `importProducts`, que
+  vuelve a validar en el servidor. Aviso si quedan productos en $0.
+- **Página `/admin/import`**: pestañas "Importación Clásica (Plantilla)"
+  y "Importación Mágica con IA" (`ImportModes`; las dos quedan montadas
+  para no perder lo cargado al cambiar de pestaña).
+
+### Verificado
+- `tsc`, `eslint` y `next build` con código 0.
+
+### Sin probar
+- **Nada de la llamada a Gemini:** `GEMINI_API_KEY` no está en
+  `.env.local`. Sin la clave, la acción responde "La importación con IA no
+  está configurada". Hay que agregarla (y en el hosting de producción) y
+  reiniciar `npm run dev`.
+- La página con sesión (pestañas, textarea, vista previa). La importación
+  clásica cambió solo por la extracción de la tabla.
+
+### Riesgos
+- Costo: cada clic llama a Gemini; no hay límite de llamadas por tienda.
+- El texto del comerciante se envía a Google (avisado en la página).
+- La IA puede inventar o equivocar precios/categorías: la vista previa es
+  la única revisión antes de guardar. Precio no encontrado = $0.
+- Una respuesta de Gemini con 500 productos puede tardar decenas de
+  segundos; no hay timeout propio.
+- `npm audit` reporta vulnerabilidades en dependencias (no se tocaron).
