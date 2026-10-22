@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { PackageSearch, Search, X } from "lucide-react";
 import Cart from "@/components/Cart";
 import ProductDetailSheet from "@/components/store/ProductDetailSheet";
+import ShowMoreButton from "@/components/store/ShowMoreButton";
 import StoreFooter from "@/components/store/StoreFooter";
 import StoreLogo from "@/components/store/StoreLogo";
 import GridProductCard from "@/components/store/templates/GridProductCard";
@@ -29,6 +30,9 @@ export default function GridTheme({ store, initialProducts }: GridThemeProps) {
     setSelectedCategory,
     categories,
     filteredProducts,
+    visibleProducts,
+    remainingCount,
+    showMore,
     hasFilters,
     clearFilters,
     noResultsDescription,
@@ -146,7 +150,7 @@ export default function GridTheme({ store, initialProducts }: GridThemeProps) {
                   </p>
                 )}
                 <div className="grid grid-cols-2 gap-2 min-[480px]:grid-cols-3 sm:gap-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-                  {filteredProducts.map((product) => (
+                  {visibleProducts.map((product) => (
                     <GridProductCard
                       key={product.id}
                       product={product}
@@ -154,6 +158,7 @@ export default function GridTheme({ store, initialProducts }: GridThemeProps) {
                     />
                   ))}
                 </div>
+                <ShowMoreButton remaining={remainingCount} onClick={showMore} className="mt-6" />
               </>
             )}
           </main>

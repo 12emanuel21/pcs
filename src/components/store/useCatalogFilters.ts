@@ -13,6 +13,10 @@ export const ALL_CATEGORIES = "Todos";
 export const CARD_WIDTH_CLASS =
   "w-[calc((100%-0.75rem)/2)] sm:w-[calc((100%-1.25rem)/2)] md:w-[calc((100%-2.5rem)/3)] lg:w-[calc((100%-3.75rem)/4)]";
 
+// Productos que se muestran de entrada y que suma cada "Ver más". 24 llena
+// filas completas en 2, 3, 4 y 6 columnas.
+export const CATALOG_PAGE_SIZE = 24;
+
 // Normaliza para buscar sin importar tildes ni mayúsculas ("cafe" = "Café").
 function normalize(text: string): string {
   return text
@@ -23,8 +27,19 @@ function normalize(text: string): string {
 
 // Búsqueda y categorías del catálogo, compartidas por todas las plantillas.
 export function useCatalogFilters(products: Product[]) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState(ALL_CATEGORIES);
+  const [searchTerm, setSearchTermState] = useState("");
+  const [selectedCategory, setSelectedCategoryState] = useState(ALL_CATEGORIES);
+  const [visibleCount, setVisibleCount] = useState(CATALOG_PAGE_SIZE);
+
+  // Cambiar un filtro vuelve a la primera página.
+  const setSearchTerm = (value: string) => {
+    setSearchTermState(value);
+    setVisibleCount(CATALOG_PAGE_SIZE);
+  };
+  const setSelectedCategory = (value: string) => {
+    setSelectedCategoryState(value);
+    setVisibleCount(CATALOG_PAGE_SIZE);
+  };
 
   const categories = useMemo(() => uniqueCategories(products), [products]);
 
@@ -48,6 +63,11 @@ export function useCatalogFilters(products: Product[]) {
     return matches.sort((a, b) => Number(a.stock === 0) - Number(b.stock === 0));
   }, [products, searchTerm, selectedCategory]);
 
+  // Paginación: solo se renderizan los primeros visibleCount productos.
+  const visibleProducts = filteredProducts.slice(0, visibleCount);
+  const remainingCount = filteredProducts.length - visibleProducts.length;
+  const showMore = () => setVisibleCount((count) => count + CATALOG_PAGE_SIZE);
+
   const hasFilters = searchTerm.trim() !== "" || selectedCategory !== ALL_CATEGORIES;
 
   const clearFilters = () => {
@@ -69,6 +89,9 @@ export function useCatalogFilters(products: Product[]) {
     setSelectedCategory,
     categories,
     filteredProducts,
+    visibleProducts,
+    remainingCount,
+    showMore,
     hasFilters,
     clearFilters,
     noResultsDescription,

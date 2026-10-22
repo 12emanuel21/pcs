@@ -13,6 +13,7 @@ import {
 import Cart from "@/components/Cart";
 import ImageWithFallback from "@/components/store/ImageWithFallback";
 import ProductDetailSheet from "@/components/store/ProductDetailSheet";
+import ShowMoreButton from "@/components/store/ShowMoreButton";
 import ProductImage from "@/components/store/ProductImage";
 import StoreFooter from "@/components/store/StoreFooter";
 import StoreLogo from "@/components/store/StoreLogo";
@@ -49,6 +50,9 @@ export default function GamerTheme({ store, hero, initialProducts }: GamerThemeP
     setSelectedCategory,
     categories,
     filteredProducts,
+    visibleProducts,
+    remainingCount,
+    showMore,
     hasFilters,
     clearFilters,
     noResultsDescription,
@@ -178,13 +182,16 @@ export default function GamerTheme({ store, hero, initialProducts }: GamerThemeP
             ) : (
               // Misma grilla que la minimalista: 2 columnas en móvil, 3 y 4 en
               // pantallas anchas, última fila centrada desde 3.
-              <div className="flex flex-wrap gap-3 sm:gap-5 md:justify-center">
-                {filteredProducts.map((product) => (
-                  <div key={product.id} className={CARD_WIDTH_CLASS}>
-                    <GamerProductCard product={product} onOpenDetail={setDetailProduct} />
-                  </div>
-                ))}
-              </div>
+              <>
+                <div className="flex flex-wrap gap-3 sm:gap-5 md:justify-center">
+                  {visibleProducts.map((product) => (
+                    <div key={product.id} className={CARD_WIDTH_CLASS}>
+                      <GamerProductCard product={product} onOpenDetail={setDetailProduct} />
+                    </div>
+                  ))}
+                </div>
+                <ShowMoreButton remaining={remainingCount} onClick={showMore} className="mt-10" />
+              </>
             )}
           </main>
 

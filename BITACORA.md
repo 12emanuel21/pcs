@@ -960,3 +960,45 @@ Rama `feat/templates-y-hero`.
 - Anton en textos largos (descripciones) se lee peor que una sans normal.
 - Si `products.colors` fuera `jsonb` en vez de `text[]`, el guardado igual
   funciona (supabase-js envía un arreglo JSON); solo cambia la migración.
+
+## 2026-10-22 · Categorías circulares y "Ver más"
+
+Rama `feat/categorias-circulares` (desde `main`).
+
+### Qué se hizo
+- **`CategoryNav`** (nuevo, plantilla minimalista): reemplaza las píldoras
+  de texto. Cada categoría es un círculo de 48px con la inicial ("Todos"
+  con ícono de cuadrícula) y el nombre debajo (`text-xs`). La activa
+  rellena el círculo con el color de la tienda (`bg-brand`) y pone el
+  nombre en negrita; las demás, `bg-zinc-100 dark:bg-zinc-800`. Desliza de
+  lado en celular (`overflow-x-auto hide-scrollbar`), sigue dentro de la
+  barra fija con el buscador, con foco visible por teclado.
+- **"Ver más":** `useCatalogFilters` pagina el catálogo (`visibleProducts`,
+  `remainingCount`, `showMore`). Muestra 24 de entrada (llena filas
+  completas en 2, 3, 4 y 6 columnas) y 24 más por clic; cambiar la
+  búsqueda o la categoría vuelve a la primera página. Botón
+  `ShowMoreButton` con el número restante, en las tres plantillas.
+- Gamer y grid conservan su barra de categorías propia.
+
+### Verificado
+- `tsc` y `eslint` con código 0.
+- Copia aparte del repo (borrada) con plantilla minimalista y 40 productos
+  simulados en 6 categorías, celular claro y oscuro: 24 al inicio, 7 al
+  elegir "Mouses", 40 tras "Ver más" (el botón desaparece), sin errores de
+  consola. Capturas en
+  `/home/evargas/dev/app_local_store/capturas/categorias-circulares/`.
+
+### Sin probar
+- `next build` (no se pidió; tsc y eslint pasan).
+- "Ver más" en gamer y grid (mismo hook y botón; no hay tienda con más de
+  24 productos).
+
+### Riesgos
+- Categorías con la misma inicial ("Accesorios"/"Audífonos") muestran el
+  mismo círculo; el nombre las distingue. Íconos por categoría necesitarían
+  un campo nuevo.
+- La barra fija es más alta que con píldoras (~130px con el buscador en
+  celular).
+- La paginación es solo visual: la búsqueda y las categorías filtran sobre
+  todo el catálogo y luego se pagina el resultado. Todos los productos se
+  siguen descargando con la página (no reduce la consulta a Supabase).

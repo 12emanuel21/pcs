@@ -3,12 +3,10 @@
 import { useCallback, useState } from "react";
 import { PackageSearch, Search, X } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
+import CategoryNav from "@/components/store/CategoryNav";
 import ProductDetailSheet from "@/components/store/ProductDetailSheet";
-import {
-  ALL_CATEGORIES as ALL,
-  CARD_WIDTH_CLASS,
-  useCatalogFilters,
-} from "@/components/store/useCatalogFilters";
+import ShowMoreButton from "@/components/store/ShowMoreButton";
+import { CARD_WIDTH_CLASS, useCatalogFilters } from "@/components/store/useCatalogFilters";
 import type { StoreHero } from "@/lib/templates";
 import type { Product } from "@/types";
 
@@ -28,6 +26,9 @@ export default function Storefront({ initialProducts }: StorefrontProps) {
     setSelectedCategory,
     categories,
     filteredProducts,
+    visibleProducts,
+    remainingCount,
+    showMore,
     hasFilters,
     clearFilters,
     noResultsDescription,
@@ -74,31 +75,12 @@ export default function Storefront({ initialProducts }: StorefrontProps) {
           </label>
 
           {categories.length > 0 && (
-            <div
-              role="tablist"
-              aria-label="Categorías"
-              className="hide-scrollbar -mx-4 mt-2.5 overflow-x-auto whitespace-nowrap px-4 sm:-mx-6 sm:px-6"
-            >
-              {[ALL, ...categories].map((category) => {
-                const isActive = category === selectedCategory;
-                return (
-                  <button
-                    key={category}
-                    type="button"
-                    role="tab"
-                    aria-selected={isActive}
-                    onClick={() => setSelectedCategory(category)}
-                    className={`mr-2 inline-flex h-10 items-center rounded-full px-4 text-sm font-medium transition-all duration-200 last:mr-0 active:scale-95 ${
-                      isActive
-                        ? "bg-brand text-brand-fg"
-                        : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800"
-                    }`}
-                  >
-                    {category}
-                  </button>
-                );
-              })}
-            </div>
+            <CategoryNav
+              categories={categories}
+              selected={selectedCategory}
+              onSelect={setSelectedCategory}
+              className="-mx-4 mt-2.5 px-3 sm:-mx-6 sm:px-5"
+            />
           )}
         </div>
       </div>
@@ -141,12 +123,13 @@ export default function Storefront({ initialProducts }: StorefrontProps) {
                 gap-x-5); el espacio vertical (gap-y) es mayor para que las
                 filas respiren sin marcos alrededor de cada tarjeta. */}
             <div className="flex flex-wrap gap-x-3 gap-y-8 sm:gap-x-5 sm:gap-y-10 md:justify-center">
-              {filteredProducts.map((product) => (
+              {visibleProducts.map((product) => (
                 <div key={product.id} className={CARD_WIDTH_CLASS}>
                   <ProductCard product={product} onOpenDetail={setDetailProduct} />
                 </div>
               ))}
             </div>
+            <ShowMoreButton remaining={remainingCount} onClick={showMore} className="mt-10" />
           </>
         )}
       </main>
