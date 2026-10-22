@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getOwnerStore } from "@/lib/auth";
+import { parseProductColors } from "@/lib/colors";
 import { parseImageField } from "@/lib/images";
 import {
   MAX_CATEGORY_LENGTH,
@@ -46,6 +47,10 @@ function parseProductForm(formData: FormData) {
     return { error: "El precio debe ser un número mayor o igual a 0." };
   }
 
+  // Un input oculto "colors" por cada color elegido en el modal.
+  const colors = parseProductColors(formData.getAll("colors"));
+  if ("error" in colors) return { error: colors.error };
+
   const image = parseImageField(formData);
   if ("error" in image) return { error: image.error };
 
@@ -55,6 +60,7 @@ function parseProductForm(formData: FormData) {
     price: Math.round(price),
     category,
     stock,
+    colors: colors.colors,
     imageUrl: image.value,
   };
 }
@@ -73,6 +79,7 @@ export async function createProduct(formData: FormData): Promise<ActionResult> {
     price: fields.price,
     category: fields.category,
     stock: fields.stock,
+    colors: fields.colors,
     image_url: fields.imageUrl ?? null,
     is_active: true,
   });
@@ -114,6 +121,7 @@ export async function updateProduct(
       price: fields.price,
       category: fields.category,
       stock: fields.stock,
+      colors: fields.colors,
       image_url: imageUrl,
     })
     .eq("id", productId)

@@ -31,7 +31,7 @@ import {
   type ThemeOption,
 } from "@/lib/theme";
 import { discardUpload, resolveImageField } from "@/lib/upload-image";
-import type { Store } from "@/types";
+import type { Product, Store } from "@/types";
 
 const inputClass =
   "rounded-lg border border-zinc-300 px-3 py-2 font-normal text-zinc-900 outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 dark:border-zinc-700 dark:text-zinc-100 dark:focus:border-zinc-300 dark:focus:ring-zinc-300";
@@ -47,9 +47,11 @@ const FALLBACK_COLOR = "#18181B";
 
 interface StoreSettingsFormProps {
   store: Store;
+  // Productos de la tienda, para elegir el producto estrella de la portada.
+  products: Pick<Product, "id" | "name" | "is_active">[];
 }
 
-export default function StoreSettingsForm({ store }: StoreSettingsFormProps) {
+export default function StoreSettingsForm({ store, products }: StoreSettingsFormProps) {
   const initialColor = HEX_COLOR.test(store.theme_color)
     ? store.theme_color.toUpperCase()
     : FALLBACK_COLOR;
@@ -313,6 +315,30 @@ export default function StoreSettingsForm({ store }: StoreSettingsFormProps) {
               placeholder="Componentes con garantía y envío a todo el país"
               className={`${inputClass} resize-none`}
             />
+          </label>
+
+          <label className="flex flex-col gap-1">
+            Producto Estrella (Para la Portada)
+            <select
+              name="featured_product_id"
+              defaultValue={
+                products.some((product) => product.id === store.featured_product_id)
+                  ? (store.featured_product_id ?? "")
+                  : ""
+              }
+              className={inputClass}
+            >
+              <option value="">Automático (el más caro con foto)</option>
+              {products.map((product) => (
+                <option key={product.id} value={product.id}>
+                  {product.is_active ? product.name : `${product.name} (oculto)`}
+                </option>
+              ))}
+            </select>
+            <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400">
+              Plantilla Gamer: se muestra en la portada cuando no hay imagen
+              de portada. Un producto oculto no aparece.
+            </span>
           </label>
 
           <div className="flex flex-col gap-2">

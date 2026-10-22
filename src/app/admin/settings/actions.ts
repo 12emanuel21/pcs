@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getOwnerOnlyStore } from "@/lib/auth";
+import { normalizeHexColor } from "@/lib/colors";
 import { isStoreFontName } from "@/lib/font-names";
 import { isThemeOption } from "@/lib/theme";
 import { parseImageField } from "@/lib/images";
@@ -11,17 +12,6 @@ import { normalizeWhatsApp } from "@/lib/whatsapp";
 
 export interface SettingsResult {
   error: string | null;
-}
-
-// Acepta #RGB o #RRGGBB y lo devuelve como #RRGGBB en mayúsculas.
-function normalizeHexColor(raw: string): string | null {
-  const value = raw.trim();
-  if (/^#[0-9a-f]{6}$/i.test(value)) return value.toUpperCase();
-  if (/^#[0-9a-f]{3}$/i.test(value)) {
-    const [r, g, b] = value.slice(1);
-    return `#${r}${r}${g}${g}${b}${b}`.toUpperCase();
-  }
-  return null;
 }
 
 export async function updateStoreSettings(
@@ -74,6 +64,19 @@ export async function updateStoreSettings(
     };
   }
 
+  // Producto estrella de la portada: vacío = automático. Debe ser de esta
+  // tienda (el id llega del navegador).
+  const featuredProductId = String(formData.get("featured_product_id") ?? "").trim() || null;
+  if (featuredProductId) {
+    const { data: featured } = await ctx.supabase
+      .from("products")
+      .select("id")
+      .eq("id", featuredProductId)
+      .eq("store_id", ctx.storeId)
+      .maybeSingle();
+    if (!featured) return { error: "El producto estrella no existe en tu tienda." };
+  }
+
   // El formulario envía el logo en "image_url" y la portada en
   // "hero_image_url" (los arma resolveImageField).
   const logo = parseImageField(formData);
@@ -100,6 +103,7 @@ export async function updateStoreSettings(
       hero_title: heroTitle || null,
       hero_subtitle: heroSubtitle || null,
       hero_image_url: heroImageUrl,
+      featured_product_id: featuredProductId,
     })
     .eq("id", ctx.storeId)
     .select("id");

@@ -19,6 +19,8 @@ export interface Store {
   hero_image_url?: string | null;
   hero_title?: string | null;
   hero_subtitle?: string | null;
+  // Producto de la portada (plantilla gamer). null = automático.
+  featured_product_id?: string | null;
   created_at?: string;
 }
 
@@ -33,6 +35,9 @@ export interface Product {
   category?: string | null;
   // Unidades disponibles. null = stock ilimitado (no se controla).
   stock?: number | null;
+  // Colores disponibles, como #RRGGBB (solo informativo: el cliente lo
+  // menciona en el pedido). Vacío o ausente = no se muestran.
+  colors?: string[];
 }
 
 export const SUPERADMIN_ROLE = "SUPERADMIN";

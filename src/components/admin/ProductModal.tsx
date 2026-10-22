@@ -4,6 +4,7 @@ import { useId, useState, useTransition } from "react";
 import { Loader2, Pencil, Plus, X } from "lucide-react";
 import { createProduct, updateProduct } from "@/app/admin/products/actions";
 import ImagePicker from "@/components/admin/ImagePicker";
+import { MAX_PRODUCT_COLORS, normalizeHexColor, productColors } from "@/lib/colors";
 import { discardUpload, resolveImageField } from "@/lib/upload-image";
 import type { Product } from "@/types";
 
@@ -212,6 +213,8 @@ function ProductForm({
             </span>
           </label>
 
+          <ColorsField initialColors={productColors(productToEdit?.colors)} />
+
           <div className="flex flex-col gap-2">
             Imagen
             <ImagePicker
@@ -248,6 +251,74 @@ function ProductForm({
           </div>
         </fieldset>
       </form>
+    </div>
+  );
+}
+
+// Colores disponibles: el selector nativo elige uno y "Añadir" lo suma a la
+// lista. Cada color viaja al servidor en un input oculto "colors".
+function ColorsField({ initialColors }: { initialColors: string[] }) {
+  const [colors, setColors] = useState(initialColors);
+  const [draft, setDraft] = useState("#000000");
+  const isFull = colors.length >= MAX_PRODUCT_COLORS;
+
+  const addColor = () => {
+    const color = normalizeHexColor(draft);
+    if (!color || isFull) return;
+    setColors((current) => (current.includes(color) ? current : [...current, color]));
+  };
+
+  return (
+    <div className="flex flex-col gap-2">
+      Colores disponibles
+      <div className="flex items-center gap-2">
+        <input
+          type="color"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          aria-label="Elegir color"
+          className="h-10 w-14 cursor-pointer rounded-lg border border-zinc-300 bg-white p-1 dark:border-zinc-700 dark:bg-zinc-900"
+        />
+        <button
+          type="button"
+          onClick={addColor}
+          disabled={isFull}
+          className="flex items-center gap-1.5 rounded-lg border border-zinc-300 px-3 py-2 hover:bg-zinc-100 disabled:opacity-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
+        >
+          <Plus size={16} />
+          Añadir
+        </button>
+      </div>
+
+      {colors.length > 0 && (
+        <ul className="flex flex-wrap gap-2">
+          {colors.map((color) => (
+            <li
+              key={color}
+              className="flex items-center gap-1.5 rounded-full border border-zinc-200 py-1 pr-1 pl-1.5 dark:border-zinc-700"
+            >
+              <span
+                style={{ backgroundColor: color }}
+                className="h-5 w-5 rounded-full border border-black/15 shadow-sm dark:border-white/20"
+              />
+              <span className="font-mono text-xs font-normal">{color}</span>
+              <button
+                type="button"
+                onClick={() => setColors((current) => current.filter((c) => c !== color))}
+                aria-label={`Quitar color ${color}`}
+                className="rounded-full p-0.5 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+              >
+                <X size={14} />
+              </button>
+              <input type="hidden" name="colors" value={color} />
+            </li>
+          ))}
+        </ul>
+      )}
+      <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400">
+        Opcional. Se muestran como círculos en la vitrina; el cliente indica
+        el que quiere al escribirte.
+      </span>
     </div>
   );
 }

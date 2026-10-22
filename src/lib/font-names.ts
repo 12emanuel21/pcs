@@ -7,6 +7,7 @@ export const STORE_FONT_NAMES = [
   "Playfair Display",
   "Oswald",
   "Outfit",
+  "Anton",
 ] as const;
 
 export type StoreFontName = (typeof STORE_FONT_NAMES)[number];

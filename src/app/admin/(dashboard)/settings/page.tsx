@@ -4,6 +4,7 @@ import { Lock, Store as StoreIcon } from "lucide-react";
 import StoreQrCard from "@/components/admin/StoreQrCard";
 import StoreSettingsForm from "@/components/admin/StoreSettingsForm";
 import { getCurrentStore } from "@/lib/auth";
+import type { Product } from "@/types";
 
 // El <Suspense> va aquí y no solo en el layout: en una navegación entre
 // pestañas el layout no se re-renderiza y su boundary no cubre esta página.
@@ -16,7 +17,7 @@ export default function Page() {
 }
 
 async function SettingsContent() {
-  const { store, accessLevel } = await getCurrentStore();
+  const { supabase, store, accessLevel } = await getCurrentStore();
 
   if (store && accessLevel === "STAFF") {
     return (
@@ -46,6 +47,15 @@ async function SettingsContent() {
     );
   }
 
+  const { data: products, error: productsError } = await supabase
+    .from("products")
+    .select("id, name, is_active")
+    .eq("store_id", store.id)
+    .order("name")
+    .returns<Pick<Product, "id" | "name" | "is_active">[]>();
+
+  if (productsError) throw productsError;
+
   return (
     <div className="mx-auto max-w-2xl">
       <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-100">Ajustes de Tienda</h1>
@@ -53,7 +63,7 @@ async function SettingsContent() {
         Personaliza cómo ven tu tienda tus clientes.
       </p>
       <div className="mt-6 flex flex-col gap-6">
-        <StoreSettingsForm store={store} />
+        <StoreSettingsForm store={store} products={products} />
         <StoreQrCard storeId={store.id} storeName={store.name} />
       </div>
     </div>

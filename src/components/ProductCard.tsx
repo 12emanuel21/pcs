@@ -1,6 +1,7 @@
 "use client";
 
 import AddToCartControl, { useProductCart } from "@/components/store/AddToCartControl";
+import ProductColors from "@/components/store/ProductColors";
 import ProductImage from "@/components/store/ProductImage";
 import { formatCOP } from "@/lib/format";
 import type { Product } from "@/types";
@@ -55,6 +56,7 @@ export default function ProductCard({ product, onOpenDetail }: ProductCardProps)
         </h2>
 
         <div className="mt-auto pt-1">
+          <ProductColors colors={product.colors} className="mb-1.5" />
           {stockNote && (
             <p className="text-[13px] font-medium text-amber-700 dark:text-amber-400">
               {stockNote}

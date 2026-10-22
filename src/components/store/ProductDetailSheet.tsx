@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import AddToCartControl, { useProductCart } from "@/components/store/AddToCartControl";
+import ProductColors from "@/components/store/ProductColors";
 import ProductImage from "@/components/store/ProductImage";
 import { formatCOP } from "@/lib/format";
 import type { Product } from "@/types";
@@ -109,6 +110,7 @@ function OpenSheet({
                 {isSoldOut ? "Agotado por ahora" : stockNote}
               </p>
             )}
+            <ProductColors colors={product.colors} className="mt-3 [&>span]:h-5 [&>span]:w-5" />
             {product.description?.trim() && (
               <p className="mt-4 text-[15px] leading-relaxed whitespace-pre-line text-zinc-600 dark:text-zinc-300">
                 {product.description.trim()}

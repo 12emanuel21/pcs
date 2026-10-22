@@ -1,6 +1,7 @@
 "use client";
 
 import AddToCartControl, { useProductCart } from "@/components/store/AddToCartControl";
+import ProductColors from "@/components/store/ProductColors";
 import ProductImage from "@/components/store/ProductImage";
 import { formatCOP } from "@/lib/format";
 import type { Product } from "@/types";
@@ -11,7 +12,7 @@ interface GamerProductCardProps {
   onOpenDetail: (product: Product) => void;
 }
 
-// Tarjeta de la plantilla gamer: caja oscura con la foto sobre la vitrina
+// Tarjeta de la plantilla gamer: caja blanca (oscura en modo oscuro) con la foto sobre la vitrina
 // clara (bg-stage + multiply: las fotos con fondo blanco se funden en vez de
 // verse como recuadros blancos), nombre en negrita, una línea de
 // descripción y, abajo, el precio grande con el botón compacto al lado.
@@ -22,7 +23,7 @@ export default function GamerProductCard({ product, onOpenDetail }: GamerProduct
   const description = product.description?.trim();
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900 text-zinc-100 transition-colors duration-200 hover:border-zinc-600">
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white text-zinc-900 transition-colors duration-200 hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-zinc-600">
       {/* La foto repite la acción del nombre: fuera del orden de tabulación
           para no recorrerla dos veces con el teclado. */}
       <button
@@ -48,27 +49,29 @@ export default function GamerProductCard({ product, onOpenDetail }: GamerProduct
       </button>
 
       <div className="flex flex-1 flex-col p-3 sm:p-4">
-        <h2 className="text-[15px] leading-snug font-bold text-zinc-100 sm:text-base">
+        <h2 className="text-[15px] leading-snug font-bold text-zinc-900 sm:text-base dark:text-zinc-100">
           <button
             type="button"
             onClick={openDetail}
             data-detail-trigger
-            className="line-clamp-2 rounded-sm text-left text-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            className="line-clamp-2 rounded-sm text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             {product.name}
           </button>
         </h2>
         {description && (
-          <p className="mt-1 line-clamp-1 text-[13px] text-zinc-400">{description}</p>
+          <p className="mt-1 line-clamp-1 text-[13px] text-zinc-500 dark:text-zinc-400">{description}</p>
         )}
         {stockNote && (
-          <p className="mt-1 text-[13px] font-medium text-amber-400">{stockNote}</p>
+          <p className="mt-1 text-[13px] font-medium text-amber-700 dark:text-amber-400">{stockNote}</p>
         )}
 
         {/* Precio y botón en una fila desde sm; en celular (2 columnas
             angostas) el botón va debajo, a todo el ancho. */}
+        <ProductColors colors={product.colors} className="mt-2" />
+
         <div className="mt-auto flex flex-col gap-2 pt-3 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-lg font-black tracking-tight text-zinc-50 tabular-nums sm:text-xl">
+          <p className="text-lg font-black tracking-tight text-zinc-900 tabular-nums sm:text-xl dark:text-zinc-50">
             {formatCOP(product.price)}
           </p>
           <AddToCartControl product={product} size="compact" className="sm:w-28 sm:shrink-0" />

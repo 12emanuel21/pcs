@@ -908,3 +908,55 @@ diseño, no marca, textos ni imágenes.
   portada se ve mal. Se evita configurando una imagen de portada.
 - La tipografía es la elegida en Ajustes (hoy Oswald); la referencia usa
   una sans muy pesada. Con fuentes sin peso 900, `font-black` se ve en 700.
+
+## 2026-10-21 · Personalización (opción A) y colores de producto
+
+Rama `feat/templates-y-hero`.
+
+### Qué se hizo
+- **Tipos:** `Store.featured_product_id` y `Product.colors`. Ambas columnas
+  ya existían en producción (comprobado por la API); se documentan en
+  `supabase/migrations/20261021120000_featured_product_and_colors.sql`
+  (idempotente, no ejecutada desde el repo; la API no expone el tipo exacto
+  de las columnas).
+- **Tipografía Anton** (condensada, ultra pesada) en el selector de Ajustes
+  (`lib/font-names.ts`, `lib/fonts.ts`). Solo existe en peso 400; se
+  desactiva la negrita sintética (`font-synthesis-weight: none`) para que
+  `font-bold`/`font-black` no la emborronen.
+- **Producto estrella manual:** select "Producto Estrella (Para la
+  Portada)" en "Diseño y Apariencia" (la página de Ajustes ahora consulta
+  id, nombre y estado de los productos). `updateStoreSettings` guarda
+  `featured_product_id` (vacío = automático) y verifica que el producto sea
+  de la tienda. `GamerTheme` usa ese producto si sigue visible; si no, el
+  más caro con foto.
+- **Gamer en claro y oscuro:** se quitó `forcedTheme="dark"` de la página y
+  la clase `dark` del contenedor. Todos los colores tienen variante clara
+  (fondo `zinc-50`, tarjetas blancas con borde `zinc-200`, textos
+  `zinc-900`) y `dark:` con los de antes. Los acentos de texto usan
+  `text-brand-ink` en claro (contraste con marcas claras) y `text-brand` en
+  oscuro. Botón de tema en la cabecera, como en las demás plantillas.
+- **Colores de producto:** `lib/colors.ts` (normaliza HEX, sin repetidos,
+  máximo 12; `normalizeHexColor` salió de las acciones de Ajustes).
+  `createProduct`/`updateProduct` guardan `colors` (un input oculto por
+  color). En `ProductModal`, selector nativo + "Añadir" y chips con "x".
+  `ProductColors` muestra círculos (máx. 6 y "+N") en las tres tarjetas y
+  en la hoja de detalle; no muestra nada si el arreglo está vacío.
+
+### Verificado
+- `tsc`, `eslint` y `next build` con código 0.
+- Plantilla gamer en celular y escritorio, sistema claro y oscuro, sin
+  errores de consola. Capturas en
+  `/home/evargas/dev/app_local_store/capturas/plantilla-gamer-claro-oscuro/`.
+
+### Sin probar
+- Guardar Ajustes y productos con sesión (producto estrella, colores).
+- Los círculos de color en pantalla: ningún producto tiene colores todavía.
+- Anton en la vitrina (la tienda demo usa Oswald).
+
+### Riesgos
+- Quien ya tenía la gamer verá ahora el tema por defecto de la tienda
+  (`default_theme`, hoy "Sistema"): en celulares en modo claro, la vitrina
+  sale clara. Para mantenerla oscura, poner "Oscuro" en Ajustes.
+- Anton en textos largos (descripciones) se lee peor que una sans normal.
+- Si `products.colors` fuera `jsonb` en vez de `text[]`, el guardado igual
+  funciona (supabase-js envía un arreglo JSON); solo cambia la migración.
