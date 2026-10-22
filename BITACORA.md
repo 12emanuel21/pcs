@@ -569,3 +569,57 @@ Rama `fix/vitrina-hoja-movil-y-admin-metricas`.
   cambio de componentes cliente probado por el dominio puede repetir errores
   de este tipo durante hasta 4 horas. Mientras tanto: Ctrl+Shift+R o ventana
   privada tras cada cambio, y en el celular borrar los datos del sitio.
+
+## 2026-10-21 · Plantillas de vitrina y portada (base)
+
+Rama `feat/templates-y-hero` (sale de
+`fix/vitrina-hoja-movil-y-admin-metricas`, que aún no está en `main`:
+incluye ese trabajo y el del SuperAdmin).
+
+### Qué se hizo
+- **Datos:** `Store` suma `template` ('minimal' | 'gamer' | 'grid'),
+  `hero_image_url`, `hero_title` y `hero_subtitle`. `src/lib/templates.ts`
+  centraliza las plantillas (`STORE_TEMPLATES`, etiquetas,
+  `resolveTemplate`: ausente o desconocida = 'minimal'), los límites de
+  texto (título 60, subtítulo 140) y `getStoreHero` (la portada existe solo
+  con título o imagen; un subtítulo suelto no basta).
+- **Supabase:** las cuatro columnas **ya existían en producción** (creadas a
+  mano; comprobado consultando la API: `template = 'minimal'`, hero en
+  null). Se documentan en `supabase/migrations/20261021000000_stores_template_and_hero.sql`
+  (idempotente, con CHECK `stores_template_check`). No se ejecutó.
+- **Ajustes:** `updateStoreSettings` valida y guarda la plantilla, el título,
+  el subtítulo (vacíos = null) y la imagen de portada; si la portada cambia,
+  borra la anterior del Storage (igual que el logo). El formulario tiene la
+  sección "Diseño y Apariencia": plantilla como botones de radio
+  ("Minimalista (Actual)", "Gamer (Oscuro/Impactante)", "Catálogo
+  (Denso)"), "Título Principal", "Subtítulo" y "Imagen de Portada (Hero
+  Banner)" con `ImagePicker`. Si falla una subida o el guardado, se
+  descartan los archivos ya subidos.
+- **`ImagePicker` y `resolveImageField`** aceptan un nombre de campo
+  (`fieldName` / `field`, por defecto "image"), para tener logo y portada en
+  el mismo formulario. Productos y logo siguen igual (usan el valor por
+  defecto).
+- **Vitrina:** `StorefrontTemplate.tsx` elige el catálogo según
+  `store.template`. Por ahora las tres plantillas renderizan el
+  `Storefront` actual; `gamer` y `grid` caen ahí hasta tener su componente.
+  La portada llega como prop `hero` a `Storefront`, todavía sin mostrarse.
+
+### Verificado
+- `tsc`, `eslint` y `next build` con código 0.
+- Servidor de desarrollo: la vitrina `/electro-demo` muestra el catálogo, el
+  buscador y el pie como antes; `/admin/settings` sin sesión responde 307
+  al login.
+
+### Sin probar
+- Guardar Ajustes con sesión de dueño (no hay sesión en esta sesión de
+  trabajo): plantilla, textos, subir/pegar/quitar la portada y que el logo
+  siga funcionando con dos selectores en el formulario.
+- Si producción tiene un CHECK o un default distinto para `template`; si
+  rechazara alguno de los tres valores, guardar Ajustes fallaría con "No se
+  pudieron guardar los cambios".
+
+### Riesgos
+- Elegir "Gamer" o "Catálogo" hoy no cambia nada visible en la vitrina; el
+  comerciante podría pensar que no se guardó.
+- Las imágenes de portada van al mismo bucket que productos y logo, con
+  prefijo `hero-`.

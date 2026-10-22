@@ -1,23 +1,27 @@
 import { IMAGE_BUCKET, isHttpUrl, sanitizeFileName } from "@/lib/images";
 import { createClient } from "@/utils/supabase/client";
 
-// Convierte los campos crudos de <ImagePicker> en un único "image_url" según
-// el contrato de parseImageField (ausente = conservar, "" = quitar, URL = nueva).
-// Si hay un archivo nuevo lo sube a Storage. Se ejecuta en el navegador.
+// Convierte los campos crudos de <ImagePicker> en un único "{field}_url"
+// según el contrato de parseImageField (ausente = conservar, "" = quitar,
+// URL = nueva). field es el fieldName del ImagePicker ("image" por defecto,
+// que produce "image_url"). Si hay un archivo nuevo lo sube a Storage. Se
+// ejecuta en el navegador.
 export async function resolveImageField(
   formData: FormData,
   storeId: string,
   filePrefix = "",
+  field = "image",
 ): Promise<{ uploadedPath: string | null; error: string | null }> {
-  const mode = formData.get("image_mode");
-  const file = formData.get("image");
-  const urlInput = String(formData.get("image_url_input") ?? "").trim();
-  const remove = formData.get("image_remove") === "1";
+  const mode = formData.get(`${field}_mode`);
+  const file = formData.get(field);
+  const urlInput = String(formData.get(`${field}_url_input`) ?? "").trim();
+  const remove = formData.get(`${field}_remove`) === "1";
+  const output = `${field}_url`;
 
-  for (const key of ["image_mode", "image", "image_url_input", "image_remove"]) {
+  for (const key of [`${field}_mode`, field, `${field}_url_input`, `${field}_remove`]) {
     formData.delete(key);
   }
-  formData.delete("image_url");
+  formData.delete(output);
 
   if (mode === "url" && urlInput) {
     if (!isHttpUrl(urlInput)) {
@@ -26,7 +30,7 @@ export async function resolveImageField(
         error: "El enlace debe empezar por http:// o https://.",
       };
     }
-    formData.set("image_url", urlInput);
+    formData.set(output, urlInput);
     return { uploadedPath: null, error: null };
   }
 
@@ -45,13 +49,13 @@ export async function resolveImageField(
     }
 
     formData.set(
-      "image_url",
+      output,
       supabase.storage.from(IMAGE_BUCKET).getPublicUrl(path).data.publicUrl,
     );
     return { uploadedPath: path, error: null };
   }
 
-  if (remove) formData.set("image_url", "");
+  if (remove) formData.set(output, "");
   return { uploadedPath: null, error: null };
 }
 

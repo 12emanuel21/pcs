@@ -6,7 +6,7 @@ import Cart from "@/components/Cart";
 import StatusScreen from "@/components/store/StatusScreen";
 import StoreFooter from "@/components/store/StoreFooter";
 import StoreLogo from "@/components/store/StoreLogo";
-import Storefront from "@/components/store/Storefront";
+import StorefrontTemplate from "@/components/store/StorefrontTemplate";
 import StorefrontSkeleton from "@/components/store/StorefrontSkeleton";
 import StoreThemeScope, { SystemThemeScope } from "@/components/store/StoreThemeScope";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -14,6 +14,7 @@ import { brandStyle } from "@/lib/brand-colors";
 import { storeFontClassName } from "@/lib/fonts";
 import { getPublicStore } from "@/lib/store-data";
 import { isStoreActive } from "@/lib/store-utils";
+import { getStoreHero, resolveTemplate } from "@/lib/templates";
 import { supabase } from "@/lib/supabase";
 import type { Product } from "@/types";
 
@@ -149,8 +150,12 @@ async function StoreCatalog({ params }: Pick<PageProps<"/[storeId]">, "params">)
         </div>
       </header>
 
-      {/* Buscador, categorías y grid filtrable (Client Component). */}
-      <Storefront initialProducts={products} />
+      {/* Catálogo según la plantilla de la tienda (minimal / gamer / grid). */}
+      <StorefrontTemplate
+        template={resolveTemplate(store.template)}
+        hero={getStoreHero(store)}
+        initialProducts={products}
+      />
 
       <StoreFooter store={store} />
 

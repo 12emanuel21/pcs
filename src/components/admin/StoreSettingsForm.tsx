@@ -18,6 +18,13 @@ import {
 } from "@/lib/font-names";
 import { STORE_FONTS } from "@/lib/fonts";
 import {
+  HERO_SUBTITLE_MAX,
+  HERO_TITLE_MAX,
+  resolveTemplate,
+  STORE_TEMPLATES,
+  TEMPLATE_LABELS,
+} from "@/lib/templates";
+import {
   isThemeOption,
   THEME_LABELS,
   THEME_OPTIONS,
@@ -90,11 +97,18 @@ export default function StoreSettingsForm({ store }: StoreSettingsFormProps) {
         setError(image.error);
         return;
       }
+      const heroImage = await resolveImageField(formData, store.id, "hero-", "hero_image");
+      if (heroImage.error) {
+        await discardUpload(image.uploadedPath);
+        setError(heroImage.error);
+        return;
+      }
 
       const result = await updateStoreSettings(formData);
 
       if (result.error) {
         await discardUpload(image.uploadedPath);
+        await discardUpload(heroImage.uploadedPath);
         setError(result.error);
         return;
       }
@@ -246,6 +260,79 @@ export default function StoreSettingsForm({ store }: StoreSettingsFormProps) {
             />
           </div>
         </div>
+
+        <section className="flex flex-col gap-6 border-t border-zinc-200 pt-6 dark:border-zinc-800">
+          <div>
+            <h2 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+              Diseño y Apariencia
+            </h2>
+            <p className="mt-0.5 text-xs font-normal text-zinc-500 dark:text-zinc-400">
+              La plantilla de tu vitrina y una portada opcional arriba del
+              catálogo.
+            </p>
+          </div>
+
+          <fieldset className="flex flex-col gap-2">
+            <legend className="mb-2">Plantilla de la vitrina</legend>
+            <div className="grid gap-2 sm:grid-cols-3">
+              {STORE_TEMPLATES.map((option) => (
+                <label key={option} className="cursor-pointer">
+                  <input
+                    type="radio"
+                    name="template"
+                    value={option}
+                    defaultChecked={resolveTemplate(store.template) === option}
+                    className="peer sr-only"
+                  />
+                  <span className="flex min-h-11 items-center justify-center rounded-lg border border-zinc-300 px-3 py-2 text-center text-sm font-normal text-zinc-600 transition-all duration-200 peer-checked:border-zinc-900 peer-checked:bg-zinc-900 peer-checked:font-semibold peer-checked:text-white peer-focus-visible:ring-2 peer-focus-visible:ring-zinc-400 dark:border-zinc-700 dark:text-zinc-400 dark:peer-checked:border-zinc-100 dark:peer-checked:bg-zinc-100 dark:peer-checked:text-zinc-900">
+                    {TEMPLATE_LABELS[option]}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <label className="flex flex-col gap-1">
+            Título Principal
+            <input
+              name="hero_title"
+              defaultValue={store.hero_title ?? ""}
+              maxLength={HERO_TITLE_MAX}
+              placeholder="Arma tu PC Ideal"
+              className={inputClass}
+            />
+          </label>
+
+          <label className="flex flex-col gap-1">
+            Subtítulo
+            <textarea
+              name="hero_subtitle"
+              defaultValue={store.hero_subtitle ?? ""}
+              maxLength={HERO_SUBTITLE_MAX}
+              rows={2}
+              placeholder="Componentes con garantía y envío a todo el país"
+              className={`${inputClass} resize-none`}
+            />
+          </label>
+
+          <div className="flex flex-col gap-2">
+            Imagen de Portada (Hero Banner)
+            <div className="max-w-md">
+              <ImagePicker
+                key={pickerKey}
+                fieldName="hero_image"
+                currentImage={store.hero_image_url ?? null}
+                aspectClass="aspect-[21/9]"
+                removeLabel="Quitar portada"
+                onError={setError}
+              />
+            </div>
+            <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400">
+              La portada aparece si tiene título o imagen. Sin ninguno de los
+              dos, la vitrina se ve como hoy.
+            </span>
+          </div>
+        </section>
 
         {error && (
           <p className="rounded-lg bg-red-50 px-3 py-2 text-red-700 dark:bg-red-950/40 dark:text-red-300">{error}</p>

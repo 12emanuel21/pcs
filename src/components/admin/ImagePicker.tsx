@@ -12,16 +12,21 @@ interface ImagePickerProps {
   aspectClass?: string;
   removeLabel?: string;
   onError?: (message: string | null) => void;
+  // Prefijo de los campos del formulario (por defecto "image"). Permite dos
+  // selectores en el mismo formulario, ej. el logo y la portada.
+  fieldName?: string;
 }
 
 // Selector "Subir archivo" / "Pegar enlace". No sube nada por sí mismo: deja
-// en el formulario los campos image_mode, image, image_url_input e
-// image_remove, que resolveImageField (lib/upload-image.ts) procesa al enviar.
+// en el formulario los campos {fieldName}_mode, {fieldName},
+// {fieldName}_url_input y {fieldName}_remove (fieldName = "image" por
+// defecto), que resolveImageField (lib/upload-image.ts) procesa al enviar.
 export default function ImagePicker({
   currentImage,
   aspectClass = "aspect-video",
   removeLabel = "Quitar imagen",
   onError,
+  fieldName = "image",
 }: ImagePickerProps) {
   const hasExternalImage = currentImage !== null && !isStorageImage(currentImage);
 
@@ -78,9 +83,9 @@ export default function ImagePicker({
 
   return (
     <div className="flex flex-col gap-2">
-      <input type="hidden" name="image_mode" value={mode} />
+      <input type="hidden" name={`${fieldName}_mode`} value={mode} />
       {removed && !hasNewImage && (
-        <input type="hidden" name="image_remove" value="1" />
+        <input type="hidden" name={`${fieldName}_remove`} value="1" />
       )}
 
       <div role="tablist" className="flex gap-1 rounded-lg bg-zinc-100 p-1 dark:bg-zinc-800">
@@ -135,7 +140,7 @@ export default function ImagePicker({
         )}
         <input
           ref={fileInputRef}
-          name="image"
+          name={fieldName}
           type="file"
           accept="image/*"
           onChange={handleFileChange}
@@ -145,7 +150,7 @@ export default function ImagePicker({
 
       <div className={`flex flex-col gap-2 ${mode === "url" ? "" : "hidden"}`}>
         <input
-          name="image_url_input"
+          name={`${fieldName}_url_input`}
           // type="text": con type="url", un valor inválido en la pestaña
           // oculta bloquearía el submit sin mostrar el error.
           type="text"

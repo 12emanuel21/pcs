@@ -5,11 +5,15 @@ import { PackageSearch, Search, X } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import ProductDetailSheet from "@/components/store/ProductDetailSheet";
 import { categoryKey, uniqueCategories } from "@/lib/categories";
+import type { StoreHero } from "@/lib/templates";
 import type { Product } from "@/types";
 
 const ALL = "Todos";
 
 interface StorefrontProps {
+  // Portada de la tienda (null = sin portada). Se recibe ya para la
+  // plantilla; todavía no se muestra.
+  hero: StoreHero | null;
   initialProducts: Product[];
 }
 

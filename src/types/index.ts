@@ -12,6 +12,13 @@ export interface Store {
   subscription_end?: string | null;
   // Tema por defecto de la vitrina: 'light' | 'dark' | 'system'.
   default_theme?: string | null;
+  // Plantilla visual de la vitrina: 'minimal' | 'gamer' | 'grid'
+  // (ver lib/templates.ts). Ausente o desconocida = 'minimal'.
+  template?: string;
+  // Portada opcional arriba del catálogo. Sin título ni imagen no se muestra.
+  hero_image_url?: string | null;
+  hero_title?: string | null;
+  hero_subtitle?: string | null;
   created_at?: string;
 }
 
