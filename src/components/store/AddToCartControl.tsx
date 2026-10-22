@@ -83,7 +83,7 @@ export default function AddToCartControl({
   if (inCart > 0 && !isSoldOut) {
     return (
       <div
-        className={`flex ${height} items-center justify-between ${
+        className={`flex ${height} ${isCompact ? "w-full" : ""} items-center justify-between ${
           isOutline
             ? "rounded-md border border-brand/70 bg-zinc-950 text-brand"
             : `${radius} bg-brand/12 text-brand-ink`

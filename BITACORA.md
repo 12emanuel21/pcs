@@ -842,3 +842,69 @@ Rama `feat/templates-y-hero`.
   tarjetas oscuras y la portada sin imagen queda sobria (solo logo y
   nombre). Mejoran con fotos de fondo removido y una imagen de portada en
   Ajustes.
+
+## 2026-10-21 · Plantilla gamer v2 (inspirada en la referencia del usuario)
+
+Rama `feat/templates-y-hero`. Referencia: capturas de
+foodstudio.aniq-ui.com que compartió el usuario. Se tomaron patrones de
+diseño, no marca, textos ni imágenes.
+
+### Análisis de la referencia (qué la hace verse premium)
+1. Portada partida: titular enorme en dos tonos (neutro + color de marca),
+   subtítulo, dos botones, tres beneficios con ícono; foto protagonista con
+   un borde de marca.
+2. Barra de categorías en tarjeta, con círculos e indicador de activa.
+3. Tarjetas con la foto sobre un fondo neutro (nunca un recuadro blanco),
+   nombre en negrita, una línea de descripción, precio grande y botón
+   pequeño al lado.
+4. Cabecera fija con buscador; títulos de sección pesados.
+
+### Qué se hizo (adaptado a nuestros datos)
+- **Cabecera fija:** logo, nombre y buscador (en la misma fila desde `md`,
+  debajo en celular). Al escribir, lleva al catálogo.
+- **Portada partida:** titular desde `hero_title` (o el nombre de la
+  tienda) en dos tonos; el comerciante puede marcar el corte con `|` o un
+  salto de línea ("Arma tu PC | sin límites"); si no, el remate en color de
+  marca es el último tercio de las palabras (una palabra: toda en color).
+  Subtítulo de `hero_subtitle` o "Arma tu pedido y envíalo por WhatsApp en
+  minutos.". Botones "Ver productos" (ancla a `#catalogo`) y "Escribir por
+  WhatsApp". Beneficios **de la plataforma**, no promesas de la tienda:
+  "Pedido por WhatsApp", "Sin registrarte", "Directo con la tienda" (en
+  celular, tres columnas compactas solo con ícono y título). A la derecha,
+  `hero_image_url` o, si no hay, el **producto estrella** (el más caro con
+  foto) sobre la vitrina; recorte diagonal con una franja del color de marca.
+  Halo difuso del color de marca detrás del titular.
+- **Categorías:** tarjeta con círculos (foto del primer producto de cada
+  categoría; "Todos" con ícono), anillo y subrayado de marca en la activa.
+  Solo aparece si hay categorías (la tienda demo no tiene).
+- **Catálogo:** título de sección en mayúsculas (o el nombre de la
+  categoría), conteo y "Ver todos" con filtros activos.
+- **Tarjeta:** `rounded-2xl`, foto `aspect-[4/3]` sobre la vitrina clara
+  con `multiply` (las fotos de fondo blanco ya no se ven como recuadros
+  blancos), zoom suave al pasar el cursor, nombre en negrita, una línea de
+  descripción, precio `font-black` y botón compacto (`AddToCartControl
+  size="compact"`) al lado desde `sm`; en celular, debajo y a todo el ancho.
+- El selector compacto ahora ocupa todo el ancho, como su botón.
+- Detalles corregidos tras ver capturas: interlineado del titular a 1.02
+  (con 0.92 las tildes de "LÍMITES" chocaban con la línea de arriba);
+  botones de la portada a todo el ancho en celular; foto de portada 16:10
+  en celular.
+
+### Verificado
+- `tsc`, `eslint` y `next build` con código 0; sin errores de consola.
+- Capturas a 1280px y celular (Pixel 7), portada y catálogo, en
+  `/home/evargas/dev/app_local_store/capturas/plantilla-gamer-v2/`:
+  `sin-portada-*` (tienda real, servidor del usuario) y `con-portada-*`
+  (portada de ejemplo en una copia aparte del repo, borrada; no se tocaron
+  los datos).
+
+### Fuera de alcance (no hay datos para eso)
+- Armador de combos, banner de promoción, mapa de sedes, favoritos y
+  carrito en la cabecera (se mantiene el botón flotante). Un banner de
+  "destacado" necesitaría un campo nuevo en Supabase.
+
+### Riesgos
+- El producto estrella es "el más caro con foto"; si su foto es mala, la
+  portada se ve mal. Se evita configurando una imagen de portada.
+- La tipografía es la elegida en Ajustes (hoy Oswald); la referencia usa
+  una sans muy pesada. Con fuentes sin peso 900, `font-black` se ve en 700.
