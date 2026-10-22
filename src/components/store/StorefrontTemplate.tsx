@@ -31,13 +31,13 @@ export default function StorefrontTemplate({
       return <GridTheme store={store} initialProducts={initialProducts} />;
     case "minimal":
       return (
-        <>
+        <div className="flex min-h-screen w-full flex-col bg-white text-zinc-900 dark:bg-black dark:text-zinc-100 dark:[color-scheme:dark]">
           <StoreHeader store={store} />
           {/* Buscador, categorías y grilla filtrable (Client Component). */}
           <Storefront hero={hero} initialProducts={initialProducts} />
           <StoreFooter store={store} />
           <Cart store={store} />
-        </>
+        </div>
       );
   }
 }

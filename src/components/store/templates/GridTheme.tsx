@@ -37,7 +37,7 @@ export default function GridTheme({ store, initialProducts }: GridThemeProps) {
   const closeDetail = useCallback(() => setDetailProduct(null), []);
 
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
+    <div className="flex min-h-screen w-full flex-col bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 dark:[color-scheme:dark]">
       {/* Encabezado mínimo. La franja superior lleva el color de la tienda. */}
       <header className="border-t-[3px] border-brand bg-white dark:bg-zinc-900">
         <div className="mx-auto flex w-full max-w-[1600px] items-center gap-2.5 px-2 py-1 sm:px-3">

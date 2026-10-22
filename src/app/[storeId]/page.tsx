@@ -120,19 +120,16 @@ async function StoreCatalog({ params }: Pick<PageProps<"/[storeId]">, "params">)
 
   return (
     // Tipografía elegida en Ajustes + paleta de marca + tema de la tienda
-    // (default_theme o la elección del comprador) para toda la vitrina. La
-    // plantilla arma el resto (cabecera, catálogo, pie y carrito); la gamer
-    // fuerza el oscuro en su propio contenedor, así que el fondo de aquí
-    // también es oscuro para que no asome blanco al estirar la página.
+    // (default_theme o la elección del comprador) para toda la vitrina. Sin
+    // fondo ni color de texto aquí: cada plantilla pone los suyos. La gamer
+    // además fuerza el tema oscuro (forcedTheme), así <html> y <body> también
+    // quedan oscuros aunque el comprador haya elegido el claro antes.
     <StoreThemeScope
       storeId={store.id}
       defaultTheme={store.default_theme}
+      forcedTheme={template === "gamer" ? "dark" : undefined}
       style={brandStyle(store.theme_color)}
-      className={`brand-scope min-h-full flex-1 antialiased ${
-        template === "gamer"
-          ? "bg-zinc-950 text-zinc-100"
-          : "bg-white text-zinc-900 dark:bg-black dark:text-zinc-100 dark:[color-scheme:dark]"
-      } ${storeFontClassName(store.font_family)}`}
+      className={`brand-scope flex min-h-full flex-1 flex-col antialiased ${storeFontClassName(store.font_family)}`}
     >
       <StorefrontTemplate
         template={template}

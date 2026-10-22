@@ -21,9 +21,11 @@ interface GamerThemeProps {
   initialProducts: Product[];
 }
 
-// Plantilla "gamer": tienda de hardware de alto rendimiento. Siempre oscura
-// (la clase .dark del contenedor activa las variantes dark: y la paleta de
-// marca oscura aunque el comprador tenga el tema claro), con una portada
+// Plantilla "gamer": tienda de hardware de alto rendimiento. Siempre oscura,
+// por tres vías que no dependen entre sí: la página fuerza el tema oscuro en
+// next-themes (forcedTheme), la clase .dark del contenedor activa las
+// variantes dark: y la paleta de marca oscura, y el contenedor y los textos
+// llevan colores explícitos (no heredan del body). Con una portada
 // inmersiva y tarjetas que se iluminan con el color de la tienda. Incluye su
 // pie y el carrito para que también queden en oscuro.
 export default function GamerTheme({ store, hero, initialProducts }: GamerThemeProps) {
@@ -42,7 +44,7 @@ export default function GamerTheme({ store, hero, initialProducts }: GamerThemeP
   const closeDetail = useCallback(() => setDetailProduct(null), []);
 
   return (
-    <div className="dark flex min-h-screen flex-col bg-zinc-950 text-zinc-100 [color-scheme:dark]">
+    <div className="dark flex min-h-screen w-full flex-col bg-zinc-950 text-zinc-100 [color-scheme:dark]">
       <GamerHero store={store} hero={hero} />
 
       {initialProducts.length === 0 ? (

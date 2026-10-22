@@ -5,6 +5,10 @@ import { isThemeOption } from "@/lib/theme";
 interface StoreThemeScopeProps {
   storeId: string;
   defaultTheme: string | null | undefined;
+  // Tema fijo para toda la vitrina (plantilla gamer: "dark"). Con él,
+  // <html> y <body> quedan en ese tema aunque el comprador haya elegido
+  // otro antes.
+  forcedTheme?: "light" | "dark";
   className?: string;
   style?: CSSProperties;
   children: ReactNode;
@@ -20,6 +24,7 @@ interface StoreThemeScopeProps {
 export default function StoreThemeScope({
   storeId,
   defaultTheme,
+  forcedTheme,
   className = "",
   style,
   children,
@@ -28,6 +33,7 @@ export default function StoreThemeScope({
     <ThemeProvider
       storageKey={`store-theme:${storeId}`}
       defaultTheme={isThemeOption(defaultTheme) ? defaultTheme : "system"}
+      forcedTheme={forcedTheme}
     >
       <div style={style} className={className}>
         {children}

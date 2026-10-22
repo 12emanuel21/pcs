@@ -21,7 +21,7 @@ export default function GamerProductCard({ product, onOpenDetail }: GamerProduct
   const openDetail = () => onOpenDetail(product);
 
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900 transition-[border-color,box-shadow] duration-200 hover:border-brand hover:shadow-[0_0_18px_var(--color-brand)] hover:shadow-brand/35">
+    <article className="flex h-full flex-col overflow-hidden rounded-lg border border-zinc-800 bg-zinc-900 text-zinc-100 transition-[border-color,box-shadow] duration-200 hover:border-brand hover:shadow-[0_0_18px_var(--color-brand)] hover:shadow-brand/35">
       {/* La foto repite la acción del nombre: fuera del orden de tabulación
           para no recorrerla dos veces con el teclado. */}
       <button
@@ -51,7 +51,7 @@ export default function GamerProductCard({ product, onOpenDetail }: GamerProduct
             type="button"
             onClick={openDetail}
             data-detail-trigger
-            className="line-clamp-2 rounded-sm text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+            className="line-clamp-2 rounded-sm text-left text-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
           >
             {product.name}
           </button>

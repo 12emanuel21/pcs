@@ -741,3 +741,59 @@ Rama `feat/templates-y-hero`.
   (12–13px), pero en el límite inferior.
 - El área táctil ampliada del botón compacto se superpone 6px con el precio
   de arriba; un toque justo encima del botón cuenta como "Agregar".
+
+## 2026-10-21 · Plantilla gamer: fondo blanco y texto oscuro (blindaje)
+
+Rama `feat/templates-y-hero`. El pedido indicaba hacer el commit en
+`feat/superadmin-renovacion-y-metricas`, pero esa rama no contiene las
+plantillas (`GamerTheme.tsx` no existe allí); se hizo en la rama donde vive
+el código.
+
+### Reporte
+- Con la plantilla gamer, fondo de página blanco y textos de las tarjetas
+  oscuros sobre fondo oscuro.
+
+### Diagnóstico
+- **No se reprodujo con el código actual.** La tienda real ya está en
+  `gamer` (`default_theme = dark`); medido en Chromium contra el servidor
+  del usuario, por localhost y por el dominio, con el sistema en claro y en
+  oscuro: contenedor `zinc-950`, tarjeta `zinc-900`, título `zinc-100`, sin
+  errores de consola. Tailwind incluye respaldo hexadecimal de los colores
+  `lab()`, así que tampoco es un navegador sin soporte de `lab`/`oklch`.
+- **Lo que sí se encontró:** si el comprador eligió antes el tema claro con
+  el botón (queda en `localStorage`), `<html>` queda en `light` y el `body`
+  blanco con texto oscuro. El contenedor gamer lo tapaba, pero cualquier
+  zona que no cubriera (rebote del scroll en iPhone, o el CSS en un estado
+  desfasado) mostraba ese blanco y ese texto oscuro heredado.
+- **Probable en el navegador del usuario:** desfase de versiones por la
+  caché de Cloudflare (también reescribe el CSS de desarrollo a
+  `max-age=14400`), como en los errores anteriores. No se pudo confirmar.
+
+### Qué se hizo
+- **El tema oscuro se fuerza de raíz:** `ThemeProvider` y `StoreThemeScope`
+  aceptan `forcedTheme`; la página pasa `forcedTheme="dark"` cuando la
+  plantilla es gamer. Con eso `<html>`, `<body>` y `color-scheme` quedan
+  oscuros aunque el comprador haya guardado el claro (verificado: con
+  "light" guardado, `html.dark` y `body` `#0a0a0a`).
+- **Cada plantilla controla su fondo:** el envoltorio de `page.tsx`
+  (`StoreThemeScope`) ya no pone fondo ni color de texto (solo `flex
+  min-h-full flex-col`, fuente y paleta). La minimalista tiene su propio
+  contenedor (`bg-white text-zinc-900`, oscuro con `dark:`); la de catálogo
+  suma `text-zinc-900 dark:text-zinc-100` y `color-scheme`.
+- **Colores explícitos en gamer:** contenedor `min-h-screen w-full
+  bg-zinc-950 text-zinc-100 flex flex-col` (más `.dark`); tarjeta
+  `bg-zinc-900 text-zinc-100`; título del producto `text-zinc-100` en el
+  `h2` y en el botón. La tarjeta no muestra descripción (está en el
+  detalle).
+
+### Verificado
+- `tsc`, `eslint` y `next build` con código 0.
+- Gamer (tienda real, servidor del usuario) con tema claro guardado:
+  `html.dark`, `body` oscuro, colores correctos.
+- Minimalista y catálogo, en una copia aparte del repo (worktree, borrada):
+  claro y oscuro con colores correctos; envoltorio transparente.
+
+### Sin probar
+- El navegador o celular donde se vio el fallo. Si persiste: recarga
+  forzada o ventana privada (caché de Cloudflare), y si aun así se ve,
+  captura con la URL y el navegador.

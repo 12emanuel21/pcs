@@ -11,6 +11,9 @@ interface ThemeProviderProps {
   // clave por defecto ("theme"); cada vitrina usa la suya.
   storageKey?: string;
   defaultTheme?: ThemeOption;
+  // Tema fijo que ignora la elección guardada (ej. la plantilla gamer de la
+  // vitrina, siempre oscura).
+  forcedTheme?: Exclude<ThemeOption, "system">;
 }
 
 // next-themes con su comportamiento nativo: pone o quita la clase .dark en
@@ -20,6 +23,7 @@ export function ThemeProvider({
   children,
   storageKey,
   defaultTheme = "system",
+  forcedTheme,
 }: ThemeProviderProps) {
   return (
     <NextThemesProvider
@@ -28,6 +32,7 @@ export function ThemeProvider({
       enableSystem
       disableTransitionOnChange
       storageKey={storageKey}
+      forcedTheme={forcedTheme}
     >
       {children}
       <ThemedToaster />
