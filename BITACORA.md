@@ -797,3 +797,48 @@ el código.
 - El navegador o celular donde se vio el fallo. Si persiste: recarga
   forzada o ventana privada (caché de Cloudflare), y si aun así se ve,
   captura con la URL y el navegador.
+
+## 2026-10-21 · Caché de Cloudflare cortada desde el repo (desarrollo)
+
+Rama `feat/templates-y-hero`.
+
+### Reporte
+- Plantilla gamer con fondo blanco, nombres de producto invisibles, título
+  diminuto y el aviso "A tree hydrated but some attributes … didn't match".
+
+### Causa (confirmada)
+- En el diff de hidratación, `+` es el cliente y `-` el servidor: el
+  servidor mandó las clases de `a908246` (`w-full`, `text-zinc-100`) y el
+  cliente tenía las de antes de ese commit. El navegador ejecutó JS viejo
+  con HTML nuevo, y el CSS viejo no tenía `bg-zinc-950`, `text-zinc-100`
+  ni `text-4xl` (de ahí el fondo blanco, los nombres oscuros y el título
+  pequeño). Es la caché de Cloudflare de los errores anteriores: en
+  desarrollo los JS/CSS de `/_next/static` conservan su URL aunque cambie
+  el contenido, el origen manda `no-cache` y Cloudflare lo reescribía a
+  `max-age=14400` (4 horas en el navegador).
+
+### Qué se hizo
+- `next.config.ts`, **solo en desarrollo** (`NODE_ENV === "development"`):
+  `headers()` para `/_next/static/:path*` con `Cache-Control`,
+  `CDN-Cache-Control` y `Cloudflare-CDN-Cache-Control` en `no-store`.
+- Verificado por el dominio público: los 21 JS/CSS de la vitrina llegan con
+  `cache-control: no-store` y `cf-cache-status: BYPASS` (antes
+  `max-age=14400` y `REVALIDATED`). La vitrina gamer por el dominio, sin
+  caché: colores correctos (captura
+  `capturas/plantilla-gamer/gamer-dominio-1140-sin-cache.png`).
+- En producción no cambia nada (`headers()` devuelve `[]`; los archivos
+  con hash siguen con su caché inmutable).
+- `tsc`, `eslint` y `next build` con código 0.
+
+### Pendiente
+- **Una sola vez:** los navegadores que ya guardaron copias viejas (hasta 4
+  horas) las siguen usando hasta que expiren: recarga forzada
+  (Ctrl+Shift+R) o borrar los datos del sitio en el celular. Desde ahí no
+  debería repetirse.
+- La regla de Cloudflare ya no es necesaria para esto.
+
+### Diseño de la plantilla gamer (observaciones, sin cambios)
+- Las fotos con fondo blanco se ven como recuadros blancos sobre las
+  tarjetas oscuras y la portada sin imagen queda sobria (solo logo y
+  nombre). Mejoran con fotos de fondo removido y una imagen de portada en
+  Ajustes.
